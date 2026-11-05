@@ -1,21 +1,37 @@
 """Lee las «Ofertas destacadas» de la portada de tupala.es y descarga la foto grande de cada pala."""
 import json, re, sys, os, subprocess
 from playwright.sync_api import sync_playwright
-JS=r"""()=>{const s=document.querySelector('#ofertas'); if(!s) return [];
+JS=r"""()=>{const s=document.querySelector('#ofertas')||document; 
 return [...s.querySelectorAll('article.deal-card')].map(a=>{const q=c=>a.querySelector(c);
  const img=q('.deal-stage img'); let src=img?img.getAttribute('src'):''; const ss=img?img.getAttribute('srcset')||'':'';
  const m=[...ss.matchAll(/(\S+)\s+\d+w/g)].map(x=>x[1]); const big=m.length?m[m.length-1]:src;
  const col=a.closest('.deal-col'); const tab=col?col.querySelector('.deal-tab'):null;
  return {nombre:q('.deal-name')?.innerText.trim(), url:'https://tupala.es'+(q('.deal-name a')?.getAttribute('href')||''),
-  attrs:[...a.querySelectorAll('.deal-attr')].map(x=>x.innerText.trim()), pct:q('.deal-pct')?.innerText.replace(/\s+/g,' ').trim(),
+  attrs:[...a.querySelectorAll('.deal-attr')].map(x=>x.innerText.trim()), pct:(q('.deal-pct')||q('.deal-pill'))?.innerText.replace(/\s+/g,' ').trim(),
   vs:q('.deal-vs')?.innerText.replace(/\s+/g,' ').trim(), precio:q('.deal-now')?.innerText.replace(/\s+/g,' ').trim(),
-  tienda:q('.deal-store b')?.innerText.trim(), dia:/oferta del d/i.test(a.innerText), rango:tab?tab.innerText.replace(/\s+/g,' ').trim():'', img:big, tag:q('.deal-tag')?.innerText.trim()||'', chart:(()=>{const sv=q('.tsc-svg'); if(!sv) return null; const band=sv.querySelector('.tsc-band'), p50=sv.querySelector('.tsc-p50'), ln=sv.querySelector('.tsc-line'), td=q('.tsc-today'); const top=td?parseFloat((td.getAttribute('style').match(/top:([\d.]+)%/)||[])[1]):null; return {d:ln?ln.getAttribute('d'):'', p50:p50?+p50.getAttribute('y1'):null, band:band?{y:+band.getAttribute('y'),h:+band.getAttribute('height')}:null, today:top, x:[...q('.tsc-x').querySelectorAll('span')].map(e=>e.innerText.trim())}})()}})}"""
+  tienda:q('.deal-store b')?.innerText.trim(), dia:/oferta del d/i.test(a.innerText), rango:tab?tab.innerText.replace(/\s+/g,' ').trim():'', img:big, tag:(q('.deal-tag')?.innerText||(q('.deal-seal')?q('.deal-seal').childNodes[1]?.textContent:'')||'').trim(), chart:(()=>{const sv=q('.tsc-svg'); if(!sv) return null; const band=sv.querySelector('.tsc-band'), p50=sv.querySelector('.tsc-p50'), ln=sv.querySelector('.tsc-line'), td=q('.tsc-today'); const top=td?parseFloat((td.getAttribute('style').match(/top:([\d.]+)%/)||[])[1]):null; return {d:ln?ln.getAttribute('d'):'', p50:p50?+p50.getAttribute('y1'):null, band:band?{y:+band.getAttribute('y'),h:+band.getAttribute('height')}:null, today:top, x:[...q('.tsc-x').querySelectorAll('span')].map(e=>e.innerText.trim())}})()}})}"""
+RANGOS=[('Menos de 100 €',0,100),('100–150 €',100,150),('150–200 €',150,200),('200–300 €',200,300)]
+def precio(o): return float(re.sub(r'[^\d,]','',o.get('precio') or '0').replace(',','.') or 0)
+def rango_de(o):
+    p=precio(o)
+    for n,a,b in RANGOS:
+        if a<=p<b: return n
+    return None
 def leer():
     with sync_playwright() as p:
         b=p.chromium.launch(); pg=b.new_page(viewport={'width':1280,'height':900})
         pg.goto('https://tupala.es/',wait_until='networkidle'); pg.wait_for_timeout(800)
         d=pg.evaluate(JS)
+        # rangos que la portada no trae hoy: la mejor oferta de ese rango en /precios/ofertas (misma fuente, misma tarjeta)
         tot=pg.evaluate("(document.querySelector('#ofertas .hub-sec-link')||{}).innerText||''")
+        tengo={rango_de(o) for o in d}
+        if len(tengo)<4:
+            pg.goto('https://tupala.es/precios/ofertas/',wait_until='networkidle'); pg.wait_for_timeout(800)
+            for o in pg.evaluate(JS):
+                r=rango_de(o)
+                if r and r not in tengo: o['dia']=False; d.append(o); tengo.add(r)
+        for o in d: o['rango']=rango_de(o) or o.get('rango')
+        d.sort(key=lambda o:precio(o))
         b.close()
         m=re.search(r'(\d+)',tot or '')
         return d,(int(m.group(1)) if m else None)
