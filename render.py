@@ -19,8 +19,9 @@ def build(data,fecha,fotos):
     of=data['ofertas'][:4]; n=len(of); total=data.get('total')
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     hoy=f'{DIAS[fecha.weekday()]} {fecha.day} de {MESES[fecha.month-1]}'
+    pills=''.join(f'<span class="pill" id="pl{i}">{nb(o["rango"])}</span>' for i,o in enumerate(of))
     seg=''.join(f'<div class="seg"><i id="sg{i}"></i></div>' for i in range(n))
-    fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1160" src="file://{fotos[i]}">' for i in range(n))
+    fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1185" src="file://{fotos[i]}">' for i in range(n))
     offers=''
     for i,o in enumerate(of):
         c=o.get('chart') or {}; hab=hab_de(o); p50=c.get('p50'); tdy=c.get('today') or 83
@@ -50,8 +51,7 @@ def build(data,fecha,fotos):
 </div>{tagh}'''
     tiles=''
     for i,o in enumerate(of):
-        r,cc=divmod(i,2)
-        tiles+=f'''<div class="it tile" id="tl{i}" data-x="{L+195+cc*410}" data-y="{780+r*285}"><div class="t-n">{i+1}</div><img src="file://{fotos[i]}"><div class="t-r"><span class="t-p">{e(o["pct"])}</span><span class="t-g">{nb(o["rango"])}</span><span class="t-e">{nb(o["precio"])}</span></div></div>'''
+        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{730+i*162}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
     css=f'''<style>
 *{{box-sizing:border-box}}body{{margin:0}}
 .art{{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071a30;font-family:Inter,system-ui,sans-serif;color:#fff}}
@@ -65,6 +65,7 @@ def build(data,fecha,fotos):
 .h-t{{font:900 112px/.92 Inter;letter-spacing:-.045em}}
 .h-n{{display:inline-block;white-space:nowrap;padding:0 14px 10px 0;font:900 250px/.86 Inter;letter-spacing:-.06em;background:linear-gradient(180deg,#E4FB6A 0%,#8FE3C4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 20px 50px rgba(143,227,196,.35))}}
 .h-s{{font:600 38px/1.3 Inter;color:#DCEAF8}}
+.pills{{display:flex;flex-wrap:wrap;gap:12px}}.pills{{flex-wrap:nowrap!important;gap:10px!important}}.pill{{display:inline-block;font:800 22px Inter;padding:11px 16px;border-radius:99px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;white-space:nowrap}}
 .fan{{height:370px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}}
 .rng{{display:flex;flex-direction:column;gap:10px}}.rng .rk{{font:700 24px 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8FA3BC}}
 .rng b{{font:900 104px/.9 Inter;letter-spacing:-.045em;color:#fff}}
@@ -91,6 +92,11 @@ def build(data,fecha,fotos):
 .chip{{font:800 22px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;padding:13px 22px;border-radius:99px;white-space:nowrap}}
 .chip.day{{background:#E4FB6A;color:#2A3A00;box-shadow:0 10px 30px -8px rgba(228,251,106,.6)}}
 .chip.seal{{background:#10243B;color:#8FE3C4;border:2px solid #8FE3C4}}
+.row{{width:{W}px;height:148px;border-radius:26px;display:flex;align-items:center;gap:20px;padding:0 26px 0 18px;background:linear-gradient(160deg,rgba(255,255,255,.15),rgba(255,255,255,.05));border:1.5px solid rgba(255,255,255,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}}
+.r-n{{flex:none;width:58px;height:58px;border-radius:50%;background:#E4FB6A;color:#10243B;font:900 32px/58px Inter;text-align:center}}
+.r-im{{flex:none;width:86px;height:130px;display:flex;align-items:center;justify-content:center}}.r-im img{{max-height:126px;max-width:86px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.5))}}
+.r-tx{{flex:1;min-width:0}}.r-nm{{font:800 30px/1.1 Inter;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}.r-mt{{margin-top:6px;font:500 23px Inter;color:#DCEAF8}}.r-mt b{{color:#fff}}
+.r-p{{flex:none;font:900 58px/1 Inter;color:#8FE3C4;letter-spacing:-.04em}}
 .tile{{width:390px;height:270px;border-radius:28px;background:linear-gradient(160deg,rgba(255,255,255,.15),rgba(255,255,255,.05));border:1.5px solid rgba(255,255,255,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);overflow:hidden}}
 .tile img{{position:absolute;left:18px;top:20px;height:230px;filter:drop-shadow(0 16px 20px rgba(0,0,0,.5))}}
 .t-n{{position:absolute;right:22px;top:16px;font:900 64px/1 Inter;color:rgba(255,255,255,.16);letter-spacing:-.04em}}
@@ -103,18 +109,18 @@ def build(data,fecha,fotos):
     body=f'''<div class="art"><div class="bg" id="bg"></div><div class="grid"></div>
 <img class="it" id="lg" data-x="196" data-y="300" src="{A("logo-blanco.svg")}" style="width:200px">
 <div class="it" id="pb" data-x="{L+W/2}" data-y="372"><div class="prog">{seg}</div></div>
-<div class="it" id="h0" data-x="{L+W/2}" data-y="450"><div class="mono h-k" style="width:{W}px">Ofertas de hoy · {e(hoy)}</div></div>
-<div class="it" id="h1" data-x="{L+W/2}" data-y="560"><div class="h-t" style="width:{W}px">Hoy, palas</div></div>
-<div class="it" id="h2" data-x="{L+W/2}" data-y="660"><div class="h-t" style="width:{W}px">de pádel hasta</div></div>
+<div class="it" id="h0" data-x="{L+W/2}" data-y="440"><div class="mono h-k" style="width:{W}px">{e(hoy.capitalize())}</div></div>
+<div class="it" id="h1" data-x="{L+W/2}" data-y="540"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">Ofertas de hoy</div></div>
+<div class="it" id="h2" data-x="{L+W/2}" data-y="715"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">para todos<br>los bolsillos.</div></div></div>
 {fan}
-<div class="it" id="h3" data-x="{L+W/2}" data-y="870"><div style="width:{W}px"><div class="h-n">−<span id="hv">0</span>%</div></div></div>
-<div class="it" id="h4" data-x="{L+W/2}" data-y="1455"><div class="h-s" style="width:{W}px">{n} presupuestos. Comparadas con su propio historial, no con el precio tachado.</div></div>
+<div class="it" id="h3" data-x="{L+W/2}" data-y="895"><div class="pills" style="width:{W}px">{pills}</div></div>
+<div class="it" id="h4" data-x="{L+W/2}" data-y="1455"><div class="h-s" style="width:{W}px">Una pala por presupuesto, comparada con su propio historial.</div></div>
 {offers}
-<div class="it" id="c0" data-x="{L+W/2}" data-y="470"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
-<div class="it" id="c1" data-x="{L+W/2}" data-y="565"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
+<div class="it" id="c0" data-x="{L+W/2}" data-y="455"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
+<div class="it" id="c1" data-x="{L+W/2}" data-y="555"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
-<div class="it" id="c2" data-x="{L+W/2}" data-y="1270"><div class="h-s" style="width:{W}px">Comenta su número.{f" Hoy hay {total} palas por debajo de su precio habitual." if total else ""}</div></div>
-<div class="it" id="c3" data-x="{L+360}" data-y="1410"><div class="cta">{lock}tupala.es<i>/precios/ofertas</i></div></div>
+<div class="it" id="c2" data-x="{L+W/2}" data-y="1345"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:34px"><b style="color:#E4FB6A">Comenta su número.</b>{f" Y {total-n} ofertas más en:" if total and total>n else " Todas las ofertas en:"}</div></div>
+<div class="it" id="c3" data-x="{L+360}" data-y="1440"><div class="cta">{lock}tupala.es<i>/precios/ofertas</i></div></div>
 <div class="flash" id="fl"></div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
@@ -140,10 +146,9 @@ window.render=function(t){
  const ho=HOOK-.35;
  K('h0',t,[[.0,{o:0,y:30}],[.35,{o:1,y:0}],[ho,{}],[ho+.3,{o:0,y:-60,b:10},'io']]);
  K('h1',t,[[.1,{o:0,y:90,b:12}],[.5,{o:1,y:0,b:0}],[ho,{}],[ho+.3,{o:0,y:-90,b:12},'io']]);
- K('h2',t,[[.22,{o:0,y:90,b:12}],[.62,{o:1,y:0,b:0}],[ho,{}],[ho+.3,{o:0,y:-90,b:12},'io']]);
- K('h3',t,[[.45,{o:0,s:.55,y:40}],[.95,{o:1,s:1,y:0},'back'],[ho,{}],[ho+.35,{o:0,s:1.6,b:18},'io']]);
- document.getElementById('hv').textContent=Math.round(TOP*E.out(cl((t-.5)/.85)));
- {const u=t-1.35; if(u>0&&u<.4){sh=Math.max(sh,Math.exp(-u*9)); fl=Math.max(fl,.35*Math.exp(-u*10));}}
+ K('h2',t,[[.3,{o:0,y:90,s:.9,b:12}],[.75,{o:1,y:0,s:1,b:0},'back'],[ho,{}],[ho+.3,{o:0,y:-90,b:12},'io']]);
+ K('h3',t,[[.6,{o:1}],[ho,{}],[ho+.3,{o:0,y:-40},'io']]);
+ for(let i=0;i<N;i++) K('pl'+i,t,[[.65+i*.09,{o:0,y:30,s:.8}],[.95+i*.09,{o:1,y:0,s:1},'back']]);
  for(let i=0;i<N;i++){const sp=(i-(N-1)/2);
   K('fn'+i,t,[[.6+i*.08,{o:0,y:500,r:sp*16}],[1.15+i*.08,{o:1,y:Math.abs(sp)*30,r:sp*12,x:0},'expo'],[ho,{}],[ho+.35,{o:0,y:600,r:sp*30},'io']]);}
  K('h4',t,[[1.0,{o:0,y:30}],[1.4,{o:1,y:0}],[ho,{}],[ho+.3,{o:0,y:40},'io']]);
@@ -161,20 +166,21 @@ window.render=function(t){
   K('rg'+i,t,[[T-.15,{o:0,x:120,b:14}],[T+.25,{o:1,x:0,b:0}],[X,{}],[X+.3,fin,'io']]);
   K('sk'+i,t,[[T+.35,{o:0,s:.2,r:-40}],[T+.7,{o:1,s:1,r:-8},'back'],[X,{}],[X+.3,{o:0,s:.4,r:20},'io']]);
   document.getElementById('pv'+i).textContent=Math.round(s.pct*E.out(cl((t-(T+.4))/.8)));
-  {const el=document.getElementById('sk'+i); el.style.scale=String(pop(t,T+1.2,.16));}
-  {const u=t-(T+1.2); if(u>0&&u<.35){sh=Math.max(sh,.8*Math.exp(-u*10)); fl=Math.max(fl,.22*Math.exp(-u*12));}}
+  
+  {const u=t-(T+2.0); if(u>0&&u<.4){sh=Math.max(sh,Math.exp(-u*9)); fl=Math.max(fl,.28*Math.exp(-u*11));}}
   K('gl'+i,t,[[T+.05,{o:0,y:160}],[T+.5,{o:1,y:0}],[X,{}],[X+.3,last?{o:0,y:80}:{o:0,x:-500,b:16},'io']]);
   K('tg'+i,t,[[T+.55,{o:0,s:.3,r:-14}],[T+.85,{o:1,s:1,r:-4},'back'],[X,{}],[X+.25,{o:0,s:.5},'io']]);
   const kn=E.out(cl((t-(T+.55))/1.0)); document.getElementById('nw'+i).textContent=kn>=1?s.now_s:Math.round(s.hab+(s.now-s.hab)*kn)+' €';
   document.getElementById('cr'+i).setAttribute('width',(104*E.io(cl((t-(T+.7))/1.35))).toFixed(2));
-  const dk=cl((t-(T+2.0))/.3); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,E.back(dk)));
+  const dk=cl((t-(T+2.0))/.3); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,E.back(dk))*pop(t,T+2.0,.5));
+  {const g=document.getElementById('gl'+i); if(t>T+1.9&&t<T+2.6) g.style.transform+=` scale(${pop(t,T+2.0,.025)})`;}
   const rn=document.getElementById('rn'+i), ru=((t-(T+2.1))%1.0+1.0)%1.0; rn.style.opacity=t>T+2.1?(1-ru)*.9:0; rn.style.scale=String(1+ru*2);
  }
  // CIERRE
  K('c0',t,[[C+.05,{o:0,y:30}],[C+.4,{o:1,y:0}]]);
  K('c1',t,[[C+.1,{o:0,y:90,b:12}],[C+.55,{o:1,y:0,b:0}]]);
- for(let i=0;i<N;i++) K('tl'+i,t,[[C+.3+i*.1,{o:0,y:120,s:.85,b:12}],[C+.75+i*.1,{o:1,y:0,s:1,b:0},'back']]);
- K('c2',t,[[C+1.0,{o:0,y:30}],[C+1.4,{o:1,y:0}]]);
+ for(let i=0;i<N;i++) K('tl'+i,t,[[C+.3+i*.12,{o:0,x:220,b:14}],[C+.7+i*.12,{o:1,x:0,b:0},'expo']]);
+ K('c2',t,[[C+1.05,{o:0,y:30}],[C+1.4,{o:1,y:0}]]);
  K('c3',t,[[C+1.3,{o:0,y:40,s:.9}],[C+1.7,{o:1,y:0,s:1},'back']]);
  {const u=t-(C+1.7); const el=document.getElementById('c3'); if(u>0) el.style.scale=String(1+.025*Math.sin(u*5));}
  document.getElementById('fl').style.opacity=fl;
@@ -189,7 +195,7 @@ def textos(data,fecha):
     of=data['ofertas'][:4]; total=data.get('total')
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     lis='\n'.join(f'{i+1}. {o["nombre"]}: {o["precio"]} ({o["pct"]}) · {o["rango"]}' for i,o in enumerate(of))
-    ig=(f'Hoy, palas de pádel hasta −{top} %. Una por presupuesto.\n\n{lis}\n\n'
+    ig=(f'Ofertas de hoy para todos los bolsillos: una pala por presupuesto, hasta −{top} %.\n\n{lis}\n\n'
         'Todas comparadas con lo que esa pala cuesta normalmente, no con el precio tachado.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
         f'{"Hoy hay "+str(total)+" palas por debajo de su precio habitual. " if total else ""}Los precios cambian cada día: tupala.es/precios/ofertas (link en la bio).\n\n'
