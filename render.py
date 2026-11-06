@@ -1,4 +1,4 @@
-"""Reel diario «Ofertas de hoy» · 1080x1920 · 30 fps · plano continuo.
+"""Historias diarias «Ofertas de hoy» · 1080x1920 · 30 fps · una historia por pantalla (portada, una por oferta, cierre).
 Estética de tupala.es (azul noche, menta para el ahorro, lima de acento) en clave premium: profundidad,
 vidrio, palas recortadas flotando, tipografía cinética y la gráfica de precio real de cada tarjeta."""
 import json, os, re, sys, subprocess, datetime, html as H_
@@ -7,8 +7,9 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 A=lambda p: 'file://'+os.path.join(HERE,'assets',p)
 DIAS=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
 MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
-HOOK=2.5; BEAT=3.7; CLOSE=3.8; FPS=30
-L=96; W=800                                   # columna de contenido: x 96–896 (a la derecha, iconos de las apps)
+HOOK=2.8; BEAT=4.5; CLOSE=5.5; FPS=30
+UTM='?utm_source=instagram&utm_medium=historia&utm_campaign=ofertas-dia'
+L=96; W=800                                   # columna x 96–896; vertical: arriba >270 (barra y avatar de la historia), 1490–1720 libre para el sticker
 e=lambda s: H_.escape(str(s or ''))
 nb=lambda s: e(s).replace(' ','&nbsp;')
 def num(s): return float(re.sub(r'[^\d,]','',s or '0').replace(',','.') or 0)
@@ -20,7 +21,6 @@ def build(data,fecha,fotos):
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     hoy=f'{DIAS[fecha.weekday()]} {fecha.day} de {MESES[fecha.month-1]}'
     pills=''.join(f'<span class="pill" id="pl{i}">{nb(o["rango"])}</span>' for i,o in enumerate(of))
-    seg=''.join(f'<div class="seg"><i id="sg{i}"></i></div>' for i in range(n))
     fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1185" src="file://{fotos[i]}">' for i in range(n))
     offers=''
     for i,o in enumerate(of):
@@ -30,7 +30,7 @@ def build(data,fecha,fotos):
         tag=o.get('tag') or ''
         tagh=f'<div class="it chip {"day" if o.get("dia") else "seal"}" id="tg{i}" data-x="{L+150}" data-y="1012">{e(tag)}</div>' if tag else ''
         x0,x1=(c.get('x') or ['',''])[0],(c.get('x') or ['',''])[-1]
-        offers+=f'''
+        offers+=f'''<div class="sw" id="w{i+1}">
 <div class="it glow" id="gw{i}" data-x="690" data-y="860"></div>
 <img class="it pad" id="pd{i}" data-x="690" data-y="900" src="file://{fotos[i]}">
 <div class="it" id="rg{i}" data-x="{L+W/2}" data-y="470"><div class="rng" style="width:{W}px"><span class="rk">Presupuesto</span><b>{nb(o["rango"])}</b></div></div>
@@ -48,10 +48,10 @@ def build(data,fecha,fotos):
   <span class="ring" id="rn{i}" style="top:{tdy}%"></span><span class="dot" id="dt{i}" style="top:{tdy}%"></span>
   <div class="xl"><span>{e(x0)}</span><span class="lg">- - - precio habitual</span><span>Hoy</span></div>
  </div>
-</div>{tagh}'''
+</div>{tagh}</div>'''
     tiles=''
     for i,o in enumerate(of):
-        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{730+i*162}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
+        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{760+i*158}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
     css=f'''<style>
 *{{box-sizing:border-box}}body{{margin:0}}
 .art{{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071a30;font-family:Inter,system-ui,sans-serif;color:#fff}}
@@ -103,25 +103,26 @@ def build(data,fecha,fotos):
 .t-r{{position:absolute;left:180px;bottom:30px;display:flex;flex-direction:column;gap:6px}}
 .t-p{{font:900 64px/1 Inter;color:#8FE3C4;letter-spacing:-.04em}}.t-g{{font:700 21px Inter;color:#fff}}.t-e{{font:600 21px Inter;color:#DCEAF8}}
 .cta{{display:inline-flex;align-items:center;gap:16px;background:#fff;color:#10243B;border-radius:99px;padding:22px 40px 22px 30px;font:800 40px Inter;box-shadow:0 18px 40px -16px rgba(0,0,0,.6)}}.cta i{{font-style:normal;color:#5f6674;font-weight:600}}
-.flash{{position:absolute;inset:0;background:#E4FB6A;mix-blend-mode:soft-light;opacity:0}}
+.sw{{position:absolute;inset:0;display:none}}
 </style>'''
-    lock='<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6b7686" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
     body=f'''<div class="art"><div class="bg" id="bg"></div><div class="grid"></div>
 <img class="it" id="lg" data-x="196" data-y="300" src="{A("logo-blanco.svg")}" style="width:200px">
-<div class="it" id="pb" data-x="{L+W/2}" data-y="372"><div class="prog">{seg}</div></div>
+<div class="sw" id="w0">
 <div class="it" id="h0" data-x="{L+W/2}" data-y="440"><div class="mono h-k" style="width:{W}px">{e(hoy.capitalize())}</div></div>
 <div class="it" id="h1" data-x="{L+W/2}" data-y="540"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">Ofertas de hoy</div></div>
 <div class="it" id="h2" data-x="{L+W/2}" data-y="715"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">para todos<br>los bolsillos.</div></div></div>
 {fan}
 <div class="it" id="h3" data-x="{L+W/2}" data-y="895"><div class="pills" style="width:{W}px">{pills}</div></div>
-<div class="it" id="h4" data-x="{L+W/2}" data-y="1455"><div class="h-s" style="width:{W}px">Una pala por presupuesto, comparada con su propio historial.</div></div>
+<div class="it" id="h4" data-x="{L+W/2}" data-y="1425"><div class="h-s" style="width:{W}px">Una pala por presupuesto, comparada con su propio historial.</div></div>
+</div>
 {offers}
+<div class="sw" id="w{n+1}">
 <div class="it" id="c0" data-x="{L+W/2}" data-y="455"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
 <div class="it" id="c1" data-x="{L+W/2}" data-y="555"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
-<div class="it" id="c2" data-x="{L+W/2}" data-y="1345"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:34px"><b style="color:#E4FB6A">Comenta su número.</b>{f" Y {total-n} ofertas más en:" if total and total>n else " Todas las ofertas en:"}</div></div>
-<div class="it" id="c3" data-x="{L+360}" data-y="1440"><div class="cta">{lock}tupala.es<i>/precios/ofertas</i></div></div>
-<div class="flash" id="fl"></div><div class="grain"></div></div>'''
+<div class="it" id="c4" data-x="{L+W/2}" data-y="642"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
+<div class="it" id="c2" data-x="{L+W/2}" data-y="1372"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>
+</div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
     js=r'''<script>
@@ -135,56 +136,43 @@ function K(id,t,fr){const el=document.getElementById(id); if(!el) return null; l
  el.style.transform=`translate(${+el.dataset.x+v.x}px,${+el.dataset.y+v.y}px) translate(-50%,-50%) rotate(${v.r}deg) scale(${v.s})`;
  el.style.filter=v.b>.3?`blur(${v.b.toFixed(1)}px)`:''; return v;}
 const cl=v=>Math.max(0,Math.min(1,v));
-function pop(t,T,a){const u=t-T; if(u<0||u>1) return 1; return 1+a*Math.sin(Math.min(u*14,Math.PI))*Math.exp(-u*6)}
 const TL=__TL__,HOOK=__HOOK__,BEAT=__BEAT__,END=__END__,TOP=__TOP__,CLOSE=__CLOSE__,N=TL.length;
 window.render=function(t){
- let sh=0, fl=0;
- const C=END-CLOSE;
+ const C=HOOK+N*BEAT;
+ const seg=t<HOOK?0:(t<C?1+Math.floor((t-HOOK)/BEAT):N+1);
+ for(let k=0;k<=N+1;k++) document.getElementById('w'+k).style.display=k===seg?'block':'none';
  document.getElementById('bg').style.transform=`translate(${Math.sin(t*.35)*40}px,${Math.cos(t*.28)*50}px) scale(${1.05+.03*Math.sin(t*.5)})`;
  K('lg',t,[[0,{o:0,y:-20}],[.4,{o:1,y:0}]]);
- // GANCHO
- const ho=HOOK-.35;
- K('h0',t,[[.0,{o:0,y:30}],[.35,{o:1,y:0}],[ho,{}],[ho+.3,{o:0,y:-60,b:10},'io']]);
- K('h1',t,[[.1,{o:0,y:90,b:12}],[.5,{o:1,y:0,b:0}],[ho,{}],[ho+.3,{o:0,y:-90,b:12},'io']]);
- K('h2',t,[[.3,{o:0,y:90,s:.9,b:12}],[.75,{o:1,y:0,s:1,b:0},'back'],[ho,{}],[ho+.3,{o:0,y:-90,b:12},'io']]);
- K('h3',t,[[.6,{o:1}],[ho,{}],[ho+.3,{o:0,y:-40},'io']]);
- for(let i=0;i<N;i++) K('pl'+i,t,[[.65+i*.09,{o:0,y:30,s:.8}],[.95+i*.09,{o:1,y:0,s:1},'back']]);
+ // PORTADA (sin salida: la historia corta sola)
+ K('h0',t,[[.0,{o:0,y:30}],[.35,{o:1,y:0}]]);
+ K('h1',t,[[.1,{o:0,y:90,b:12}],[.5,{o:1,y:0,b:0}]]);
+ K('h2',t,[[.3,{o:0,y:90,s:.9,b:12}],[.75,{o:1,y:0,s:1,b:0},'out']]);
+ K('h3',t,[[.6,{o:1}]]);
+ for(let i=0;i<N;i++) K('pl'+i,t,[[.65+i*.09,{o:0,y:30}],[.95+i*.09,{o:1,y:0},'out']]);
  for(let i=0;i<N;i++){const sp=(i-(N-1)/2);
-  K('fn'+i,t,[[.6+i*.08,{o:0,y:500,r:sp*16}],[1.15+i*.08,{o:1,y:Math.abs(sp)*30,r:sp*12,x:0},'expo'],[ho,{}],[ho+.35,{o:0,y:600,r:sp*30},'io']]);}
- K('h4',t,[[1.0,{o:0,y:30}],[1.4,{o:1,y:0}],[ho,{}],[ho+.3,{o:0,y:40},'io']]);
- // PROGRESO tipo historias
- K('pb',t,[[HOOK-.3,{o:0,y:-20}],[HOOK,{o:1,y:0}],[C,{}],[C+.3,{o:0,y:-20}]]);
- for(let i=0;i<N;i++){const s=document.getElementById('sg'+i); s.style.width=(100*cl((t-(HOOK+i*BEAT))/BEAT))+'%';}
- // OFERTAS
- for(let i=0;i<N;i++){const s=TL[i],T=HOOK+i*BEAT,X=T+BEAT-.32,last=i===N-1;
-  const fin=last?{o:0,s:.92,b:10}:{o:0,x:-760,b:26};
-  const inP={o:0,x:900,r:24,b:30};
-  const fl_=Math.sin((t-T)*1.6)*14;
-  const v=K('pd'+i,t,[[T-.4,inP],[T+.15,{o:1,x:0,r:9,b:0},'expo'],[X,{x:-30,r:7}],[X+.32,last?{o:0,s:.9,r:7,b:10}:{o:0,x:-900,r:-10,b:30},'qin']]);
-  if(v&&t>T&&t<X){const el=document.getElementById('pd'+i); el.style.transform+=` translateY(${fl_}px)`;}
-  K('gw'+i,t,[[T-.3,{o:0,s:.6}],[T+.4,{o:1,s:1}],[X,{s:1.08}],[X+.32,{o:0,s:1.2},'io']]);
-  K('rg'+i,t,[[T-.15,{o:0,x:120,b:14}],[T+.25,{o:1,x:0,b:0}],[X,{}],[X+.3,fin,'io']]);
-  K('sk'+i,t,[[T+.35,{o:0,s:.2,r:-40}],[T+.7,{o:1,s:1,r:-8},'back'],[X,{}],[X+.3,{o:0,s:.4,r:20},'io']]);
-  document.getElementById('pv'+i).textContent=Math.round(s.pct*E.out(cl((t-(T+.4))/.8)));
-  
-  {const u=t-(T+2.0); if(u>0&&u<.4){sh=Math.max(sh,Math.exp(-u*9)); fl=Math.max(fl,.28*Math.exp(-u*11));}}
-  K('gl'+i,t,[[T+.05,{o:0,y:160}],[T+.5,{o:1,y:0}],[X,{}],[X+.3,last?{o:0,y:80}:{o:0,x:-500,b:16},'io']]);
-  K('tg'+i,t,[[T+.55,{o:0,s:.3,r:-14}],[T+.85,{o:1,s:1,r:-4},'back'],[X,{}],[X+.25,{o:0,s:.5},'io']]);
-  const kn=E.out(cl((t-(T+.55))/1.0)); document.getElementById('nw'+i).textContent=kn>=1?s.now_s:Math.round(s.hab+(s.now-s.hab)*kn)+' €';
-  document.getElementById('cr'+i).setAttribute('width',(104*E.io(cl((t-(T+.7))/1.35))).toFixed(2));
-  const dk=cl((t-(T+2.0))/.3); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,E.back(dk))*pop(t,T+2.0,.5));
-  {const g=document.getElementById('gl'+i); if(t>T+1.9&&t<T+2.6) g.style.transform+=` scale(${pop(t,T+2.0,.025)})`;}
-  const rn=document.getElementById('rn'+i), ru=((t-(T+2.1))%1.0+1.0)%1.0; rn.style.opacity=t>T+2.1?(1-ru)*.9:0; rn.style.scale=String(1+ru*2);
+  K('fn'+i,t,[[.6+i*.08,{o:0,y:500,r:sp*16}],[1.15+i*.08,{o:1,y:Math.abs(sp)*30,r:sp*12,x:0},'expo']]);}
+ K('h4',t,[[1.0,{o:0,y:30}],[1.4,{o:1,y:0}]]);
+ // UNA HISTORIA POR OFERTA: entra, dibuja la bajada y se queda quieta para leerla
+ for(let i=0;i<N;i++){const s=TL[i],T=HOOK+i*BEAT;
+  const v=K('pd'+i,t,[[T,{o:0,x:900,r:24,b:30}],[T+.55,{o:1,x:0,r:9,b:0},'expo'],[T+BEAT,{x:-20,r:8},'o']]);
+  if(v&&t>T){const el=document.getElementById('pd'+i); el.style.transform+=` translateY(${Math.sin((t-T)*1.6)*14}px)`;}
+  K('gw'+i,t,[[T,{o:0,s:.6}],[T+.6,{o:1,s:1}],[T+BEAT,{s:1.06},'o']]);
+  K('rg'+i,t,[[T+.05,{o:0,x:120,b:14}],[T+.45,{o:1,x:0,b:0}]]);
+  K('sk'+i,t,[[T+.4,{o:0,s:.6,r:-30}],[T+.8,{o:1,s:1,r:-8},'out']]);
+  document.getElementById('pv'+i).textContent=Math.round(s.pct*E.out(cl((t-(T+.45))/.8)));
+  K('gl'+i,t,[[T+.1,{o:0,y:160}],[T+.55,{o:1,y:0}]]);
+  K('tg'+i,t,[[T+.6,{o:0,s:.6,r:-10}],[T+.95,{o:1,s:1,r:-4},'out']]);
+  const kn=E.out(cl((t-(T+.6))/1.0)); document.getElementById('nw'+i).textContent=kn>=1?s.now_s:Math.round(s.hab+(s.now-s.hab)*kn)+' €';
+  document.getElementById('cr'+i).setAttribute('width',(104*E.io(cl((t-(T+.75))/1.35))).toFixed(2));
+  const dk=E.out(cl((t-(T+2.05))/.3)); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,dk));
+  const rn=document.getElementById('rn'+i), ru=((t-(T+2.2))%1.2+1.2)%1.2/1.2; rn.style.opacity=t>T+2.2?(1-ru)*.8:0; rn.style.scale=String(1+ru*2);
  }
- // CIERRE
+ // CIERRE: lista numerada y hueco para la encuesta
  K('c0',t,[[C+.05,{o:0,y:30}],[C+.4,{o:1,y:0}]]);
  K('c1',t,[[C+.1,{o:0,y:90,b:12}],[C+.55,{o:1,y:0,b:0}]]);
- for(let i=0;i<N;i++) K('tl'+i,t,[[C+.3+i*.12,{o:0,x:220,b:14}],[C+.7+i*.12,{o:1,x:0,b:0},'expo']]);
- K('c2',t,[[C+1.05,{o:0,y:30}],[C+1.4,{o:1,y:0}]]);
- K('c3',t,[[C+1.3,{o:0,y:40,s:.9}],[C+1.7,{o:1,y:0,s:1},'back']]);
- {const u=t-(C+1.7); const el=document.getElementById('c3'); if(u>0) el.style.scale=String(1+.025*Math.sin(u*5));}
- document.getElementById('fl').style.opacity=fl;
- document.querySelector('.art').style.translate=sh>.03?`${(Math.sin(t*95)*12*sh).toFixed(1)}px ${(Math.cos(t*80)*7*sh).toFixed(1)}px`:'0 0';
+ K('c4',t,[[C+.4,{o:0,y:20}],[C+.75,{o:1,y:0}]]);
+ for(let i=0;i<N;i++) K('tl'+i,t,[[C+.45+i*.12,{o:0,x:220,b:14}],[C+.85+i*.12,{o:1,x:0,b:0},'expo']]);
+ K('c2',t,[[C+1.3,{o:0,y:30}],[C+1.65,{o:1,y:0}]]);
 };
 window.render(0);
 </script>'''
@@ -192,17 +180,14 @@ window.render(0);
     fonts='<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap">'
     return f'<!doctype html><html><head><meta charset="utf-8">{fonts}{css}</head><body>{body}{js}</body></html>',END
 def textos(data,fecha):
-    of=data['ofertas'][:4]; total=data.get('total')
+    """Lo que necesita quien publica: el enlace de cada historia, la encuesta y el texto del vídeo completo para TikTok."""
+    of=data['ofertas'][:4]; n=len(of)
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
-    lis='\n'.join(f'{i+1}. {o["nombre"]}: {o["precio"]} ({o["pct"]}) · {o["rango"]}' for i,o in enumerate(of))
-    ig=(f'Ofertas de hoy para todos los bolsillos: una pala por presupuesto, hasta −{top} %.\n\n{lis}\n\n'
-        'Todas comparadas con lo que esa pala cuesta normalmente, no con el precio tachado.\n\n'
-        '¿Cuál te llevas? Comenta su número 👇\n\n'
-        f'{"Hoy hay "+str(total)+" palas por debajo de su precio habitual. " if total else ""}Los precios cambian cada día: tupala.es/precios/ofertas (link en la bio).\n\n'
-        '#padel #padelespaña #palasdepadel #ofertaspadel #tupala')
-    tt=(f'Título: Palas de pádel hasta −{top} % hoy\n\nDescripción: Una oferta por presupuesto, comparada con su propio historial. '
-        '¿Cuál te llevas? Comenta su número. Búscalas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
-    return {'instagram_facebook':ig,'tiktok':tt}
+    enl=[{'historia':i+2,'nombre':o['nombre'],'url':(o.get('url') or 'https://tupala.es/precios/ofertas/')+UTM,'texto_sticker':'Ver oferta'} for i,o in enumerate(of)]
+    enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
+    tt=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto y comparadas con lo que cuestan normalmente. '
+        '¿Cuál te llevas? Comenta su número. Todas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
+    return {'enlaces':enl,'encuesta':enc,'tiktok':tt}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'
     data=json.load(open(os.path.join(d,'ofertas.json')))
@@ -215,21 +200,29 @@ if __name__=='__main__':
     data['ofertas']=keep
     fecha=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=1))).date()
     html,END=build(data,fecha,fotos)
-    hp=os.path.join(d,'reel.html'); open(hp,'w').write(html)
+    hp=os.path.join(d,'historias.html'); open(hp,'w').write(html)
     json.dump(textos(data,fecha),open(os.path.join(d,'textos.json'),'w'),ensure_ascii=False,indent=1)
     with sync_playwright() as p:
         b=p.chromium.launch(); pg=b.new_page(viewport={'width':1080,'height':1920})
         pg.goto('file://'+os.path.abspath(hp),wait_until='networkidle'); pg.wait_for_timeout(1500)
         if mode=='stills':
-            n=len(keep); ts=[1.6]+[HOOK+i*BEAT+2.6 for i in range(n)]+[HOOK+BEAT*0+0.9, END-.1]
+            n=len(keep); ts=[HOOK-.05]+[HOOK+i*BEAT+1.2 for i in range(1)]+[HOOK+(i+1)*BEAT-.05 for i in range(n)]+[END-.05]
             for t in ts: pg.evaluate(f'render({t})'); pg.screenshot(path=os.path.join(d,f'still{t:05.2f}.png'))
         else:
-            tmp=out[:-4]+'.part.mp4'
-            ff=subprocess.Popen(['ffmpeg','-y','-loglevel','error','-f','image2pipe','-framerate',str(FPS),'-c:v','mjpeg','-i','-',
-                '-c:v','libx264','-pix_fmt','yuv420p','-crf','19','-preset','medium','-movflags','+faststart',tmp],stdin=subprocess.PIPE)
-            for i in range(int((END+.2)*FPS)):
-                pg.evaluate(f'render({i/FPS})'); ff.stdin.write(pg.screenshot(type='jpeg',quality=92))
-            ff.stdin.close()
-            if ff.wait()!=0: sys.exit('ffmpeg falló')
-            os.replace(tmp,out); print(out,round(END+.2,1),'s')
+            os.makedirs(out,exist_ok=True); n=len(keep); C=HOOK+n*BEAT
+            segs=[(0,HOOK)]+[(HOOK+i*BEAT,BEAT) for i in range(n)]+[(C,CLOSE)]
+            files=[]
+            for k,(s0,du) in enumerate(segs):
+                f=os.path.join(out,f'historia-{k+1}.mp4'); tmp=f[:-4]+'.part.mp4'
+                ff=subprocess.Popen(['ffmpeg','-y','-loglevel','error','-f','image2pipe','-framerate',str(FPS),'-c:v','mjpeg','-i','-',
+                    '-c:v','libx264','-pix_fmt','yuv420p','-crf','19','-preset','medium','-r',str(FPS),'-movflags','+faststart',tmp],stdin=subprocess.PIPE)
+                for j in range(round(du*FPS)):
+                    pg.evaluate(f'render({s0+j/FPS+1e-4})'); ff.stdin.write(pg.screenshot(type='jpeg',quality=92))
+                ff.stdin.close()
+                if ff.wait()!=0: sys.exit('ffmpeg falló')
+                os.replace(tmp,f); files.append(f)
+            lst=os.path.join(out,'lista.txt'); open(lst,'w').write(''.join(f"file '{os.path.abspath(f)}'\n" for f in files))
+            comp=os.path.join(out,'historia-completa.mp4'); tmp=comp[:-4]+'.part.mp4'
+            if subprocess.run(['ffmpeg','-y','-loglevel','error','-f','concat','-safe','0','-i',lst,'-c','copy','-movflags','+faststart',tmp]).returncode!=0: sys.exit('concat falló')
+            os.replace(tmp,comp); os.remove(lst); print(len(files),'historias +',comp,round(END,1),'s')
         b.close()
