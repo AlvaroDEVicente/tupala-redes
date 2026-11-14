@@ -16,7 +16,7 @@ def num(s): return float(re.sub(r'[^\d,]','',s or '0').replace(',','.') or 0)
 def hab_de(o):
     m=re.search(r'habitual de ([\d.]+)',(o.get('vs') or '').replace(' ',' '))
     return int(m.group(1).replace('.','')) if m else None
-def build(data,fecha,fotos):
+def build(data,fecha,fotos,reel=True):
     of=data['ofertas'][:4]; n=len(of); total=data.get('total')
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     hoy=f'{DIAS[fecha.weekday()]} {fecha.day} de {MESES[fecha.month-1]}'
@@ -121,7 +121,7 @@ def build(data,fecha,fotos):
 <div class="it" id="c1" data-x="{L+W/2}" data-y="555"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
 <div class="it" id="c4" data-x="{L+W/2}" data-y="642"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
-<div class="it" id="c2" data-x="{L+W/2}" data-y="1372"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>
+{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1370"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Comenta su número.</b> Todas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1458"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
 </div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
@@ -173,6 +173,7 @@ window.render=function(t){
  K('c4',t,[[C+.4,{o:0,y:20}],[C+.75,{o:1,y:0}]]);
  for(let i=0;i<N;i++) K('tl'+i,t,[[C+.45+i*.12,{o:0,x:220,b:14}],[C+.85+i*.12,{o:1,x:0,b:0},'expo']]);
  K('c2',t,[[C+1.3,{o:0,y:30}],[C+1.65,{o:1,y:0}]]);
+ K('c3',t,[[C+1.6,{o:0,y:40,s:.9}],[C+2.0,{o:1,y:0,s:1},'out']]);
 };
 window.render(0);
 </script>'''
@@ -189,7 +190,7 @@ def textos(data,fecha):
         '¿Cuál te llevas? Comenta su número. Todas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
     return {'enlaces':enl,'encuesta':enc,'tiktok':tt}
 if __name__=='__main__':
-    d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'
+    d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
     data=json.load(open(os.path.join(d,'ofertas.json')))
     sys.path.insert(0,HERE); from recorte import recortar
     keep=[]; fotos=[]
@@ -199,7 +200,7 @@ if __name__=='__main__':
     if not keep: sys.exit('Sin ofertas con foto')
     data['ofertas']=keep
     fecha=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=1))).date()
-    html,END=build(data,fecha,fotos)
+    html,END=build(data,fecha,fotos,reel)
     hp=os.path.join(d,'historias.html'); open(hp,'w').write(html)
     json.dump(textos(data,fecha),open(os.path.join(d,'textos.json'),'w'),ensure_ascii=False,indent=1)
     with sync_playwright() as p:
