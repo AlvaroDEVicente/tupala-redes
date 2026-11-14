@@ -225,4 +225,12 @@ if __name__=='__main__':
             comp=os.path.join(out,'historia-completa.mp4'); tmp=comp[:-4]+'.part.mp4'
             if subprocess.run(['ffmpeg','-y','-loglevel','error','-f','concat','-safe','0','-i',lst,'-c','copy','-movflags','+faststart',tmp]).returncode!=0: sys.exit('concat falló')
             os.replace(tmp,comp); os.remove(lst); print(len(files),'historias +',comp,round(END,1),'s')
+            # Copia para subir: el conector de Drive admite ~3 MB por envío; con gráficos planos no se nota la diferencia.
+            web=os.path.join(out,'reel-web.mp4')
+            for crf in (28,30,32,34):
+                subprocess.run(['ffmpeg','-y','-loglevel','error','-i',comp,'-c:v','libx264','-crf',str(crf),'-preset','slow',
+                    '-pix_fmt','yuv420p','-movflags','+faststart','-an',web],check=True)
+                if os.path.getsize(web)<3_000_000: break
+            else: sys.exit('reel-web.mp4 no baja de 3 MB')
+            print(web,round(os.path.getsize(web)/1e6,2),'MB crf',crf)
         b.close()
