@@ -7,7 +7,7 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 A=lambda p: 'file://'+os.path.join(HERE,'assets',p)
 DIAS=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
 MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
-HOOK=2.8; BEAT=4.5; CLOSE=5.5; FPS=30
+HOOK=1.7; BEAT=2.8; CLOSE=2.8; FPS=30   # ~15 s: la franja de 7–15 s es la que más se termina de ver
 UTM='?utm_source=instagram&utm_medium=historia&utm_campaign=ofertas-dia'
 L=96; W=800                                   # columna x 96–896; vertical: arriba >270 (barra y avatar de la historia), 1490–1720 libre para el sticker
 e=lambda s: H_.escape(str(s or ''))
@@ -21,21 +21,21 @@ def build(data,fecha,fotos,reel=True):
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     hoy=f'{DIAS[fecha.weekday()]} {fecha.day} de {MESES[fecha.month-1]}'
     pills=''.join(f'<span class="pill" id="pl{i}">{nb(o["rango"])}</span>' for i,o in enumerate(of))
-    fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1185" src="file://{fotos[i]}">' for i in range(n))
+    fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1150" src="file://{fotos[i]}">' for i in range(n))
     offers=''
     for i,o in enumerate(of):
         c=o.get('chart') or {}; hab=hab_de(o); p50=c.get('p50'); tdy=c.get('today') or 83
         d=c.get('d','')
         area=(d+' L100,100 L0,100 Z') if d else ''
         tag=o.get('tag') or ''
-        tagh=f'<div class="it chip {"day" if o.get("dia") else "seal"}" id="tg{i}" data-x="{L+150}" data-y="1012">{e(tag)}</div>' if tag else ''
+        tagh=f'<div class="it chip {"day" if o.get("dia") else "seal"}" id="tg{i}" data-x="{L+150}" data-y="988">{e(tag)}</div>' if tag else ''
         x0,x1=(c.get('x') or ['',''])[0],(c.get('x') or ['',''])[-1]
         offers+=f'''<div class="sw" id="w{i+1}">
-<div class="it glow" id="gw{i}" data-x="690" data-y="860"></div>
-<img class="it pad" id="pd{i}" data-x="690" data-y="900" src="file://{fotos[i]}">
-<div class="it" id="rg{i}" data-x="{L+W/2}" data-y="470"><div class="rng" style="width:{W}px"><span class="rk">Presupuesto</span><b>{nb(o["rango"])}</b></div></div>
-<div class="it stk" id="sk{i}" data-x="{L+160}" data-y="790"><div class="stk-in"><small>ahorras</small><span>−<em id="pv{i}">0</em>%</span></div></div>
-<div class="it glass" id="gl{i}" data-x="{L+W/2}" data-y="1255">
+<div class="it glow" id="gw{i}" data-x="700" data-y="820"></div>
+<img class="it pad" id="pd{i}" data-x="700" data-y="840" src="file://{fotos[i]}">
+<div class="it" id="rg{i}" data-x="{L+W/2}" data-y="395"><div class="rng" style="width:{W}px"><span class="rk">Presupuesto</span><b>{nb(o["rango"])}</b></div></div>
+<div class="it stk" id="sk{i}" data-x="{L+160}" data-y="730"><div class="stk-in"><small>ahorras</small><span>−<em id="pv{i}">0</em>%</span></div></div>
+<div class="it glass" id="gl{i}" data-x="{L+W/2}" data-y="1238">
  <div class="g-name">{e(o["nombre"])}</div>
  <div class="g-attr">{" · ".join(e(a) for a in o.get("attrs",[]))} · en <b>{e(o["tienda"])}</b></div>
  <div class="g-price"><span class="now" id="nw{i}">{nb(o["precio"])}</span>{f'<span class="old">{hab}&nbsp;€</span>' if hab else ''}</div>
@@ -51,7 +51,7 @@ def build(data,fecha,fotos,reel=True):
 </div>{tagh}</div>'''
     tiles=''
     for i,o in enumerate(of):
-        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{760+i*158}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
+        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{688+i*158}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
     css=f'''<style>
 *{{box-sizing:border-box}}body{{margin:0}}
 .art{{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071a30;font-family:Inter,system-ui,sans-serif;color:#fff}}
@@ -66,11 +66,11 @@ def build(data,fecha,fotos,reel=True):
 .h-n{{display:inline-block;white-space:nowrap;padding:0 14px 10px 0;font:900 250px/.86 Inter;letter-spacing:-.06em;background:linear-gradient(180deg,#E4FB6A 0%,#8FE3C4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 20px 50px rgba(143,227,196,.35))}}
 .h-s{{font:600 38px/1.3 Inter;color:#DCEAF8}}
 .pills{{display:flex;flex-wrap:wrap;gap:12px}}.pills{{flex-wrap:nowrap!important;gap:10px!important}}.pill{{display:inline-block;font:800 22px Inter;padding:11px 16px;border-radius:99px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;white-space:nowrap}}
-.fan{{height:370px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}}
+.fan{{height:440px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}}
 .rng{{display:flex;flex-direction:column;gap:10px}}.rng .rk{{font:700 24px 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8FA3BC}}
 .rng b{{font:900 104px/.9 Inter;letter-spacing:-.045em;color:#fff}}
 .glow{{width:760px;height:760px;border-radius:50%;background:radial-gradient(closest-side,rgba(143,227,196,.38),rgba(26,111,191,.18) 55%,transparent 72%)}}
-.pad{{height:720px;filter:drop-shadow(0 50px 50px rgba(0,0,0,.6)) drop-shadow(0 0 1px rgba(255,255,255,.4))}}
+.pad{{height:800px;filter:drop-shadow(0 50px 50px rgba(0,0,0,.6)) drop-shadow(0 0 1px rgba(255,255,255,.4))}}
 .stk{{width:285px;height:285px;border-radius:50%;background:#E4FB6A;color:#10243B;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px -18px rgba(228,251,106,.55),inset 0 -10px 0 rgba(0,0,0,.08)}}
 .stk-in{{text-align:center;line-height:1}}.stk small{{display:block;font:800 22px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}}
 .stk span{{font:900 84px/1 Inter;letter-spacing:-.05em;white-space:nowrap}}.stk em{{font-style:normal}}
@@ -106,22 +106,21 @@ def build(data,fecha,fotos,reel=True):
 .sw{{position:absolute;inset:0;display:none}}
 </style>'''
     body=f'''<div class="art"><div class="bg" id="bg"></div><div class="grid"></div>
-<img class="it" id="lg" data-x="196" data-y="300" src="{A("logo-blanco.svg")}" style="width:200px">
+<img class="it" id="lg" data-x="196" data-y="282" src="{A("logo-blanco.svg")}" style="width:200px">
 <div class="sw" id="w0">
-<div class="it" id="h0" data-x="{L+W/2}" data-y="440"><div class="mono h-k" style="width:{W}px">{e(hoy.capitalize())}</div></div>
-<div class="it" id="h1" data-x="{L+W/2}" data-y="540"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">Ofertas de hoy</div></div>
-<div class="it" id="h2" data-x="{L+W/2}" data-y="715"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">para todos<br>los bolsillos.</div></div></div>
+<div class="it" id="h0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">{e(hoy.capitalize())}</div></div>
+<div class="it" id="h1" data-x="{L+W/2}" data-y="474"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">Ofertas de hoy</div></div>
+<div class="it" id="h2" data-x="{L+W/2}" data-y="650"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">para todos<br>los bolsillos.</div></div></div>
 {fan}
-<div class="it" id="h3" data-x="{L+W/2}" data-y="895"><div class="pills" style="width:{W}px">{pills}</div></div>
-<div class="it" id="h4" data-x="{L+W/2}" data-y="1425"><div class="h-s" style="width:{W}px">Una pala por presupuesto, comparada con su propio historial.</div></div>
+<div class="it" id="h3" data-x="{L+W/2}" data-y="830"><div class="pills" style="width:{W}px">{pills}</div></div>
 </div>
 {offers}
 <div class="sw" id="w{n+1}">
-<div class="it" id="c0" data-x="{L+W/2}" data-y="455"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
-<div class="it" id="c1" data-x="{L+W/2}" data-y="555"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
+<div class="it" id="c0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
+<div class="it" id="c1" data-x="{L+W/2}" data-y="472"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
-<div class="it" id="c4" data-x="{L+W/2}" data-y="642"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
-{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1370"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Comenta su número.</b> Todas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1458"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
+<div class="it" id="c4" data-x="{L+W/2}" data-y="560"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
+{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1300"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Comenta su número.</b> Todas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1392"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
 </div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
@@ -144,36 +143,35 @@ window.render=function(t){
  document.getElementById('bg').style.transform=`translate(${Math.sin(t*.35)*40}px,${Math.cos(t*.28)*50}px) scale(${1.05+.03*Math.sin(t*.5)})`;
  K('lg',t,[[0,{o:0,y:-20}],[.4,{o:1,y:0}]]);
  // PORTADA (sin salida: la historia corta sola)
- K('h0',t,[[.0,{o:0,y:30}],[.35,{o:1,y:0}]]);
- K('h1',t,[[.1,{o:0,y:90,b:12}],[.5,{o:1,y:0,b:0}]]);
- K('h2',t,[[.3,{o:0,y:90,s:.9,b:12}],[.75,{o:1,y:0,s:1,b:0},'out']]);
- K('h3',t,[[.6,{o:1}]]);
- for(let i=0;i<N;i++) K('pl'+i,t,[[.65+i*.09,{o:0,y:30}],[.95+i*.09,{o:1,y:0},'out']]);
+ K('h0',t,[[.0,{o:0,y:30}],[.3,{o:1,y:0}]]);
+ K('h1',t,[[.05,{o:0,y:90,b:12}],[.4,{o:1,y:0,b:0}]]);
+ K('h2',t,[[.2,{o:0,y:90,s:.9,b:12}],[.6,{o:1,y:0,s:1,b:0},'out']]);
+ K('h3',t,[[.45,{o:1}]]);
+ for(let i=0;i<N;i++) K('pl'+i,t,[[.45+i*.07,{o:0,y:30}],[.72+i*.07,{o:1,y:0},'out']]);
  for(let i=0;i<N;i++){const sp=(i-(N-1)/2);
-  K('fn'+i,t,[[.6+i*.08,{o:0,y:500,r:sp*16}],[1.15+i*.08,{o:1,y:Math.abs(sp)*30,r:sp*12,x:0},'expo']]);}
- K('h4',t,[[1.0,{o:0,y:30}],[1.4,{o:1,y:0}]]);
+  K('fn'+i,t,[[.45+i*.07,{o:0,y:500,r:sp*16}],[.95+i*.07,{o:1,y:Math.abs(sp)*30,r:sp*12,x:0},'expo']]);}
  // UNA HISTORIA POR OFERTA: entra, dibuja la bajada y se queda quieta para leerla
  for(let i=0;i<N;i++){const s=TL[i],T=HOOK+i*BEAT;
-  const v=K('pd'+i,t,[[T,{o:0,x:900,r:24,b:30}],[T+.55,{o:1,x:0,r:9,b:0},'expo'],[T+BEAT,{x:-20,r:8},'o']]);
+  const v=K('pd'+i,t,[[T,{o:0,x:900,r:24,b:30}],[T+.45,{o:1,x:0,r:9,b:0},'expo'],[T+BEAT,{x:-20,r:8},'o']]);
   if(v&&t>T){const el=document.getElementById('pd'+i); el.style.transform+=` translateY(${Math.sin((t-T)*1.6)*14}px)`;}
-  K('gw'+i,t,[[T,{o:0,s:.6}],[T+.6,{o:1,s:1}],[T+BEAT,{s:1.06},'o']]);
-  K('rg'+i,t,[[T+.05,{o:0,x:120,b:14}],[T+.45,{o:1,x:0,b:0}]]);
-  K('sk'+i,t,[[T+.4,{o:0,s:.6,r:-30}],[T+.8,{o:1,s:1,r:-8},'out']]);
-  document.getElementById('pv'+i).textContent=Math.round(s.pct*E.out(cl((t-(T+.45))/.8)));
-  K('gl'+i,t,[[T+.1,{o:0,y:160}],[T+.55,{o:1,y:0}]]);
-  K('tg'+i,t,[[T+.6,{o:0,s:.6,r:-10}],[T+.95,{o:1,s:1,r:-4},'out']]);
-  const kn=E.out(cl((t-(T+.6))/1.0)); document.getElementById('nw'+i).textContent=kn>=1?s.now_s:Math.round(s.hab+(s.now-s.hab)*kn)+' €';
-  document.getElementById('cr'+i).setAttribute('width',(104*E.io(cl((t-(T+.75))/1.35))).toFixed(2));
-  const dk=E.out(cl((t-(T+2.05))/.3)); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,dk));
-  const rn=document.getElementById('rn'+i), ru=((t-(T+2.2))%1.2+1.2)%1.2/1.2; rn.style.opacity=t>T+2.2?(1-ru)*.8:0; rn.style.scale=String(1+ru*2);
+  K('gw'+i,t,[[T,{o:0,s:.6}],[T+.45,{o:1,s:1}],[T+BEAT,{s:1.06},'o']]);
+  K('rg'+i,t,[[T+.03,{o:0,x:120,b:14}],[T+.33,{o:1,x:0,b:0}]]);
+  K('sk'+i,t,[[T+.28,{o:0,s:.6,r:-30}],[T+.58,{o:1,s:1,r:-8},'out']]);
+  document.getElementById('pv'+i).textContent=Math.round(s.pct*E.out(cl((t-(T+.32))/.6)));
+  K('gl'+i,t,[[T+.06,{o:0,y:160}],[T+.4,{o:1,y:0}]]);
+  K('tg'+i,t,[[T+.42,{o:0,s:.6,r:-10}],[T+.7,{o:1,s:1,r:-4},'out']]);
+  const kn=E.out(cl((t-(T+.4))/.75)); document.getElementById('nw'+i).textContent=kn>=1?s.now_s:Math.round(s.hab+(s.now-s.hab)*kn)+' €';
+  document.getElementById('cr'+i).setAttribute('width',(104*E.io(cl((t-(T+.5))/.95))).toFixed(2));
+  const dk=E.out(cl((t-(T+1.42))/.25)); const dt=document.getElementById('dt'+i); dt.style.opacity=dk; dt.style.scale=String(Math.max(.01,dk));
+  const rn=document.getElementById('rn'+i), ru=((t-(T+1.55))%1.0+1.0)%1.0/1.0; rn.style.opacity=t>T+1.55?(1-ru)*.8:0; rn.style.scale=String(1+ru*2);
  }
  // CIERRE: lista numerada y hueco para la encuesta
  K('c0',t,[[C+.05,{o:0,y:30}],[C+.4,{o:1,y:0}]]);
  K('c1',t,[[C+.1,{o:0,y:90,b:12}],[C+.55,{o:1,y:0,b:0}]]);
- K('c4',t,[[C+.4,{o:0,y:20}],[C+.75,{o:1,y:0}]]);
- for(let i=0;i<N;i++) K('tl'+i,t,[[C+.45+i*.12,{o:0,x:220,b:14}],[C+.85+i*.12,{o:1,x:0,b:0},'expo']]);
- K('c2',t,[[C+1.3,{o:0,y:30}],[C+1.65,{o:1,y:0}]]);
- K('c3',t,[[C+1.6,{o:0,y:40,s:.9}],[C+2.0,{o:1,y:0,s:1},'out']]);
+ K('c4',t,[[C+.3,{o:0,y:20}],[C+.6,{o:1,y:0}]]);
+ for(let i=0;i<N;i++) K('tl'+i,t,[[C+.3+i*.1,{o:0,x:220,b:14}],[C+.65+i*.1,{o:1,x:0,b:0},'expo']]);
+ K('c2',t,[[C+.9,{o:0,y:30}],[C+1.2,{o:1,y:0}]]);
+ K('c3',t,[[C+1.1,{o:0,y:40,s:.9}],[C+1.45,{o:1,y:0,s:1},'out']]);
 };
 window.render(0);
 </script>'''
@@ -188,7 +186,14 @@ def textos(data,fecha):
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
     tt=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto y comparadas con lo que cuestan normalmente. '
         '¿Cuál te llevas? Comenta su número. Todas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
-    return {'enlaces':enl,'encuesta':enc,'tiktok':tt}
+    lis='\n'.join(f'{i+1}. {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
+    total=data.get('total')
+    ig=(f'Ofertas de hoy para todos los bolsillos 🎾\n\n{lis}\n\n'
+        'Comparadas con lo que cada pala cuesta normalmente, no con el precio tachado.\n\n'
+        '¿Cuál te llevas? Comenta su número 👇\n\n'
+        f'{"Las "+str(total)+" ofertas de hoy" if total else "Todas las ofertas"}: link en la bio.\n\n'
+        '#padel #padelespaña #palasdepadel #ofertaspadel #tupala')
+    return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
     data=json.load(open(os.path.join(d,'ofertas.json')))
@@ -207,7 +212,7 @@ if __name__=='__main__':
         b=p.chromium.launch(); pg=b.new_page(viewport={'width':1080,'height':1920})
         pg.goto('file://'+os.path.abspath(hp),wait_until='networkidle'); pg.wait_for_timeout(1500)
         if mode=='stills':
-            n=len(keep); ts=[HOOK-.05]+[HOOK+i*BEAT+1.2 for i in range(1)]+[HOOK+(i+1)*BEAT-.05 for i in range(n)]+[END-.05]
+            n=len(keep); ts=[HOOK-.05]+[HOOK+i*BEAT+.9 for i in range(1)]+[HOOK+(i+1)*BEAT-.05 for i in range(n)]+[END-.05]
             for t in ts: pg.evaluate(f'render({t})'); pg.screenshot(path=os.path.join(d,f'still{t:05.2f}.png'))
         else:
             os.makedirs(out,exist_ok=True); n=len(keep); C=HOOK+n*BEAT
@@ -228,7 +233,7 @@ if __name__=='__main__':
             os.replace(tmp,comp); os.remove(lst); print(len(files),'historias +',comp,round(END,1),'s')
             # Copia para subir: el conector de Drive admite ~3 MB por envío; con gráficos planos no se nota la diferencia.
             web=os.path.join(out,'reel-web.mp4')
-            for crf in (28,30,32,34):
+            for crf in (24,26,28,30,32,34):
                 subprocess.run(['ffmpeg','-y','-loglevel','error','-i',comp,'-c:v','libx264','-crf',str(crf),'-preset','slow',
                     '-pix_fmt','yuv420p','-movflags','+faststart','-an',web],check=True)
                 if os.path.getsize(web)<3_000_000: break
