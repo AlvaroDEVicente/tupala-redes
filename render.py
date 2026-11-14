@@ -204,7 +204,7 @@ if __name__=='__main__':
         c=os.path.abspath(os.path.join(d,f'c{i}.png')); recortar(o['foto'],c); keep.append(o); fotos.append(c)
     if not keep: sys.exit('Sin ofertas con foto')
     data['ofertas']=keep
-    fecha=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=1))).date()
+    fecha=datetime.datetime.now(__import__("zoneinfo").ZoneInfo("Europe/Madrid")).date()
     html,END=build(data,fecha,fotos,reel)
     hp=os.path.join(d,'historias.html'); open(hp,'w').write(html)
     json.dump(textos(data,fecha),open(os.path.join(d,'textos.json'),'w'),ensure_ascii=False,indent=1)
