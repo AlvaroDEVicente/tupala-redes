@@ -19,7 +19,8 @@ def hab_de(o):
 def curva(d,tdy):
     """La gráfica de la web acaba en el último día con histórico y pinta el precio de hoy como un punto suelto;
     en el vídeo la línea baja hasta ese punto. Los huecos sin datos (varias M) se unen con una línea discontinua."""
-    if not d: return '','',''
+    if not d:   # sin histórico: solo sabemos el precio habitual (línea p50, y≈13) y el de hoy
+        return '', f'M0,13 C60,13 70,{tdy} 100,{tdy} L100,100 L0,100 Z', f'M0,13 C60,13 70,{tdy} 100,{tdy}'
     num=r'(-?[\d.]+),(-?[\d.]+)'
     trozos=[t for t in re.split(r'(?=M)',d) if t.strip()]
     gaps=''; prev=None
@@ -101,7 +102,7 @@ def build(data,fecha,fotos,reel=True):
 .g-chart{{position:relative;flex:1;margin:22px 4px 26px}}
 .g-chart svg{{position:absolute;inset:0;width:100%;height:100%;overflow:visible}}
 .p50{{stroke:rgba(255,255,255,.45);stroke-width:2.5;stroke-dasharray:8 8}}
-.gap{{fill:none;stroke:rgba(255,255,255,.55);stroke-width:3;stroke-dasharray:4 9;stroke-linecap:round}}
+.gap{{fill:none;stroke:rgba(255,255,255,.4);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}}
 .ln{{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(143,227,196,.7))}}
 .hl{{position:absolute;left:0;transform:translateY(-135%);font:700 18px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.65)}}
 .dot{{position:absolute;left:100%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#8FE3C4;box-shadow:0 0 0 5px rgba(7,26,48,.9),0 0 24px #8FE3C4}}
