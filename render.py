@@ -213,7 +213,7 @@ def textos(data,fecha):
         'Rebajas comparadas con su precio de siempre, para que sepas si de verdad es buen momento.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
         f'{mas}\n\n'
-        '#padel #padeltok #padelespaña #palasdepadel #ofertaspadel #padelamateur')
+        '#padel #palasdepadel #ofertaspadel #padelespaña #tupala')   # Instagram admite 5 hashtags como máximo
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
