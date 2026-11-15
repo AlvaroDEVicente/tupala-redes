@@ -210,7 +210,7 @@ def textos(data,fecha):
     mas=(f'Las 4 del vídeo y {total-len(of)} ofertas más en tupala.es' if total and total>len(of) else 'Todas en tupala.es')
     # Un solo texto para Instagram y TikTok: sin «link en la bio» porque la bio de TikTok aún no admite enlace.
     ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
-        'Comparadas con lo que cada pala cuesta normalmente, no con el precio tachado.\n\n'
+        'Descuentos de verdad: comparados con lo que cada pala cuesta normalmente, no con un PVP que casi nadie paga.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
         f'{mas}\n\n'
         '#padel #padeltok #padelespaña #palasdepadel #ofertaspadel #padelamateur')
