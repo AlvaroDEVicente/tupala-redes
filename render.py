@@ -205,13 +205,15 @@ def textos(data,fecha):
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
     tt=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto y comparadas con lo que cuestan normalmente. '
         '¿Cuál te llevas? Comenta su número. Todas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
-    lis='\n'.join(f'{i+1}. {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
+    lis='\n'.join(f'{i+1}. {o["rango"]} · {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     total=data.get('total')
-    ig=(f'Ofertas de hoy para todos los bolsillos 🎾\n\n{lis}\n\n'
+    mas=(f'Las 4 del vídeo y {total-len(of)} ofertas más en tupala.es' if total and total>len(of) else 'Todas en tupala.es')
+    # Un solo texto para Instagram y TikTok: sin «link en la bio» porque la bio de TikTok aún no admite enlace.
+    ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
         'Comparadas con lo que cada pala cuesta normalmente, no con el precio tachado.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
-        f'{"Las 4 del vídeo y "+str(total-len(of))+" ofertas más" if total and total>len(of) else "Las ofertas del vídeo"}: link en la bio.\n\n'
-        '#padel #padeltok #padelespaña #palasdepadel #ofertaspadel #tupala')
+        f'{mas}\n\n'
+        '#padel #padeltok #padelespaña #palasdepadel #ofertaspadel #padelamateur')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
