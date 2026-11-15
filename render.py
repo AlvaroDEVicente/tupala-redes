@@ -68,9 +68,10 @@ def build(data,fecha,fotos,reel=True):
   <div class="xl"><span>{e(x0)}</span><span class="lg">- - - precio habitual</span><span>Hoy</span></div>
  </div>
 </div>{tagh}</div>'''
+    mas=(f'Descubre estas ofertas <b style="color:#E4FB6A">y {total-n} más</b> en:' if total and total>n else 'Descubre estas ofertas en:')
     tiles=''
     for i,o in enumerate(of):
-        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{688+i*158}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
+        tiles+=f'''<div class="it row" id="tl{i}" data-x="{L+W/2}" data-y="{648+i*158}"><div class="r-n">{i+1}</div><div class="r-im"><img src="file://{fotos[i]}"></div><div class="r-tx"><div class="r-nm">{e(o["nombre"])}</div><div class="r-mt">{nb(o["rango"])} · <b>{nb(o["precio"])}</b></div></div><div class="r-p">{e(o["pct"])}</div></div>'''
     css=f'''<style>
 *{{box-sizing:border-box}}body{{margin:0}}
 .art{{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071a30;font-family:Inter,system-ui,sans-serif;color:#fff}}
@@ -139,8 +140,7 @@ def build(data,fecha,fotos,reel=True):
 <div class="it" id="c0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">Tu turno</div></div>
 <div class="it" id="c1" data-x="{L+W/2}" data-y="472"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
-<div class="it" id="c4" data-x="{L+W/2}" data-y="560"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
-{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1300"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:33px"><b style="color:#E4FB6A">Comenta su número.</b> Descubre más ofertas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1392"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
+{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1262"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px">'+mas+'</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1352"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
 </div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
@@ -188,7 +188,6 @@ window.render=function(t){
  // CIERRE: lista numerada y hueco para la encuesta
  K('c0',t,[[C+.05,{o:0,y:30}],[C+.4,{o:1,y:0}]]);
  K('c1',t,[[C+.1,{o:0,y:90,b:12}],[C+.55,{o:1,y:0,b:0}]]);
- K('c4',t,[[C+.3,{o:0,y:20}],[C+.6,{o:1,y:0}]]);
  for(let i=0;i<N;i++) K('tl'+i,t,[[C+.3+i*.1,{o:0,x:220,b:14}],[C+.65+i*.1,{o:1,x:0,b:0},'expo']]);
  K('c2',t,[[C+.9,{o:0,y:30}],[C+1.2,{o:1,y:0}]]);
  K('c3',t,[[C+1.1,{o:0,y:40,s:.9}],[C+1.45,{o:1,y:0,s:1},'out']]);
