@@ -16,6 +16,25 @@ def num(s): return float(re.sub(r'[^\d,]','',s or '0').replace(',','.') or 0)
 def hab_de(o):
     m=re.search(r'habitual de ([\d.]+)',(o.get('vs') or '').replace(' ',' '))
     return int(m.group(1).replace('.','')) if m else None
+def curva(d,tdy):
+    """La gráfica de la web acaba en el último día con histórico y pinta el precio de hoy como un punto suelto;
+    en el vídeo la línea baja hasta ese punto. Los huecos sin datos (varias M) se unen con una línea discontinua."""
+    if not d: return '','',''
+    num=r'(-?[\d.]+),(-?[\d.]+)'
+    trozos=[t for t in re.split(r'(?=M)',d) if t.strip()]
+    gaps=''; prev=None
+    for t in trozos:
+        pts=re.findall(num,t)
+        if prev and pts: gaps+=f'M{prev[0]},{prev[1]} L{pts[0][0]},{pts[0][1]} '
+        if pts: prev=pts[-1]
+    xl,yl=float(prev[0]),float(prev[1])
+    linea=d
+    if xl<99.5:
+        m=xl+(100-xl)*.5
+        linea+=f' C{m:.2f},{yl:.2f} {m:.2f},{tdy:.2f} 100,{tdy:.2f}'
+    unida=trozos[0]+''.join('L'+t[1:] for t in trozos[1:])
+    if xl<99.5: unida+=f' C{m:.2f},{yl:.2f} {m:.2f},{tdy:.2f} 100,{tdy:.2f}'
+    return linea, unida+' L100,100 L0,100 Z', gaps.strip()
 def build(data,fecha,fotos,reel=True):
     of=data['ofertas'][:4]; n=len(of); total=data.get('total')
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
@@ -25,8 +44,7 @@ def build(data,fecha,fotos,reel=True):
     offers=''
     for i,o in enumerate(of):
         c=o.get('chart') or {}; hab=hab_de(o); p50=c.get('p50'); tdy=c.get('today') or 83
-        d=c.get('d','')
-        area=(d+' L100,100 L0,100 Z') if d else ''
+        d,area,gaps=curva(c.get('d',''),tdy)
         tag=o.get('tag') or ''
         tagh=f'<div class="it chip {"day" if o.get("dia") else "seal"}" id="tg{i}" data-x="{L+150}" data-y="988">{e(tag)}</div>' if tag else ''
         x0,x1=(c.get('x') or ['',''])[0],(c.get('x') or ['',''])[-1]
@@ -44,7 +62,7 @@ def build(data,fecha,fotos,reel=True):
    <linearGradient id="ga{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FE3C4" stop-opacity=".45"/><stop offset="1" stop-color="#8FE3C4" stop-opacity="0"/></linearGradient>
    <clipPath id="cp{i}"><rect id="cr{i}" x="-2" y="-20" width="0" height="140"/></clipPath></defs>
    {f'<line class="p50" x1="0" y1="{p50}" x2="100" y2="{p50}" vector-effect="non-scaling-stroke"/>' if p50 is not None else ''}
-   <g clip-path="url(#cp{i})"><path d="{e(area)}" fill="url(#ga{i})"/><path class="ln" d="{e(d)}" vector-effect="non-scaling-stroke"/></g></svg>
+   <g clip-path="url(#cp{i})"><path d="{e(area)}" fill="url(#ga{i})"/><path class="ln" d="{e(d)}" vector-effect="non-scaling-stroke"/>{f'<path class="gap" d="{e(gaps)}" vector-effect="non-scaling-stroke"/>' if gaps else ''}</g></svg>
   <span class="ring" id="rn{i}" style="top:{tdy}%"></span><span class="dot" id="dt{i}" style="top:{tdy}%"></span>
   <div class="xl"><span>{e(x0)}</span><span class="lg">- - - precio habitual</span><span>Hoy</span></div>
  </div>
@@ -83,6 +101,7 @@ def build(data,fecha,fotos,reel=True):
 .g-chart{{position:relative;flex:1;margin:22px 4px 26px}}
 .g-chart svg{{position:absolute;inset:0;width:100%;height:100%;overflow:visible}}
 .p50{{stroke:rgba(255,255,255,.45);stroke-width:2.5;stroke-dasharray:8 8}}
+.gap{{fill:none;stroke:rgba(255,255,255,.55);stroke-width:3;stroke-dasharray:4 9;stroke-linecap:round}}
 .ln{{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(143,227,196,.7))}}
 .hl{{position:absolute;left:0;transform:translateY(-135%);font:700 18px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.65)}}
 .dot{{position:absolute;left:100%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#8FE3C4;box-shadow:0 0 0 5px rgba(7,26,48,.9),0 0 24px #8FE3C4}}
