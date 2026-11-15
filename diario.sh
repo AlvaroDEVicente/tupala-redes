@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Genera las historias del día: lee las ofertas de la portada de tupala.es, recorta las palas, renderiza
-# una historia por pantalla (portada, una por oferta, cierre) y la versión completa, y deja en out/ lo que
-# publica la página «Historias del día» (historia-*.mp4 y hoy.json).
+# Pieza diaria: lee las ofertas de la portada de tupala.es, recorta las palas, renderiza el reel (~15 s),
+# la copia comprimida para Metricool (out/reel-web.mp4, <3 MB), las 4 imágenes de historias (out/historias/)
+# y el correo de historias (out/correo.html, out/correo.txt, out/correo.json).
 set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf work out && mkdir -p work out
 python3 ofertas.py work
-python3 render.py work out
+python3 render.py work out stills >/dev/null        # fotogramas de control en work/still*.png
+python3 render.py work out video reel
 python3 hoy_json.py work out/hoy.json
-python3 render.py work out stills >/dev/null   # fotogramas de control en work/still*.png
-for f in out/historia-*.mp4; do printf '%s %ss\n' "$(basename "$f")" "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")"; done
+python3 correo.py work out
+ls -la out/reel-web.mp4 out/historias/

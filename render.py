@@ -260,4 +260,10 @@ if __name__=='__main__':
                 if os.path.getsize(web)<3_000_000: break
             else: sys.exit('reel-web.mp4 no baja de 3 MB')
             print(web,round(os.path.getsize(web)/1e6,2),'MB crf',crf)
+            # Imágenes para las historias: el último fotograma de cada pala (hueco libre abajo para el sticker de enlace)
+            hd=os.path.join(out,'historias'); os.makedirs(hd,exist_ok=True)
+            for i in range(n):
+                t=HOOK+(i+1)*BEAT-.05
+                subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',f'{t:.2f}','-i',comp,'-frames:v','1','-q:v','3',
+                    os.path.join(hd,f'oferta-{i+1}.jpg')],check=True)
         b.close()
