@@ -53,7 +53,7 @@ def build(data,fecha,fotos,reel=True):
 <div class="it glow" id="gw{i}" data-x="700" data-y="820"></div>
 <img class="it pad" id="pd{i}" data-x="700" data-y="840" src="file://{fotos[i]}">
 <div class="it" id="rg{i}" data-x="{L+W/2}" data-y="395"><div class="rng" style="width:{W}px"><span class="rk">Presupuesto</span><b>{nb(o["rango"])}</b></div></div>
-<div class="it stk" id="sk{i}" data-x="{L+160}" data-y="730"><div class="stk-in"><small>ahorras</small><span>−<em id="pv{i}">0</em>%</span></div></div>
+<div class="it stk" id="sk{i}" data-x="{L+160}" data-y="730"><div class="stk-in"><small>ahorras</small><span><em id="pv{i}">0</em><i class="pc">%</i></span></div></div>
 <div class="it glass" id="gl{i}" data-x="{L+W/2}" data-y="1238">
  <div class="g-name">{e(o["nombre"])}</div>
  <div class="g-attr">{" · ".join(e(a) for a in o.get("attrs",[]))} · en <b>{e(o["tienda"])}</b></div>
@@ -92,7 +92,7 @@ def build(data,fecha,fotos,reel=True):
 .pad{{height:800px;filter:drop-shadow(0 50px 50px rgba(0,0,0,.6)) drop-shadow(0 0 1px rgba(255,255,255,.4))}}
 .stk{{width:285px;height:285px;border-radius:50%;background:#E4FB6A;color:#10243B;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px -18px rgba(228,251,106,.55),inset 0 -10px 0 rgba(0,0,0,.08)}}
 .stk-in{{text-align:center;line-height:1}}.stk small{{display:block;font:800 22px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}}
-.stk span{{font:900 84px/1 Inter;letter-spacing:-.05em;white-space:nowrap}}.stk em{{font-style:normal}}
+.stk span{{font:900 92px/1 Inter;letter-spacing:-.05em;white-space:nowrap}}.stk em{{font-style:normal}}.stk .pc{{font-style:normal;font-size:.62em;margin-left:.12em;letter-spacing:0}}
 .glass{{width:{W}px;height:430px;border-radius:36px;padding:34px 38px 30px;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05));border:1.5px solid rgba(255,255,255,.22);backdrop-filter:blur(26px) saturate(140%);-webkit-backdrop-filter:blur(26px) saturate(140%);box-shadow:0 40px 80px -30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.25);display:flex;flex-direction:column}}
 .g-name{{font:800 44px/1.05 Inter;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .g-attr{{margin-top:8px;font:500 25px Inter;color:#DCEAF8}}.g-attr b{{color:#fff}}
