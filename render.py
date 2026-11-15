@@ -140,7 +140,7 @@ def build(data,fecha,fotos,reel=True):
 <div class="it" id="c1" data-x="{L+W/2}" data-y="472"><div class="h-t" style="width:{W}px;font-size:98px;white-space:nowrap">¿Cuál te <span style="color:#E4FB6A">llevas?</span></div></div>
 {tiles}
 <div class="it" id="c4" data-x="{L+W/2}" data-y="560"><div class="h-s" style="width:{W}px;white-space:nowrap;font-size:32px">{f"Y {total-n} ofertas más en tupala.es" if total and total>n else "Todas las ofertas en tupala.es"}</div></div>
-{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1300"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Comenta su número.</b> Todas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1392"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
+{'<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1300"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:33px"><b style="color:#E4FB6A">Comenta su número.</b> Descubre más ofertas en:</div></div><div class="it" id="c3" data-x="'+str(L+300)+'" data-y="1392"><div class="cta">tupala.es<i>/precios/ofertas</i></div></div>' if reel else '<div class="it" id="c2" data-x="'+str(L+W/2)+'" data-y="1372"><div class="h-s" style="width:'+str(W)+'px;white-space:nowrap;font-size:36px"><b style="color:#E4FB6A">Vota tu favorita aquí abajo&nbsp;↓</b></div></div>'}
 </div><div class="grain"></div></div>'''
     tl=[dict(pct=pcts[i],now=num(o['precio']),hab=hab_de(o) or num(o['precio']),now_s=o['precio'].replace(' ',' ')) for i,o in enumerate(of)]
     END=HOOK+n*BEAT+CLOSE
@@ -211,8 +211,8 @@ def textos(data,fecha):
     ig=(f'Ofertas de hoy para todos los bolsillos 🎾\n\n{lis}\n\n'
         'Comparadas con lo que cada pala cuesta normalmente, no con el precio tachado.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
-        f'{"Las "+str(total)+" ofertas de hoy" if total else "Todas las ofertas"}: link en la bio.\n\n'
-        '#padel #padelespaña #palasdepadel #ofertaspadel #tupala')
+        f'{"Las 4 del vídeo y "+str(total-len(of))+" ofertas más" if total and total>len(of) else "Las ofertas del vídeo"}: link en la bio.\n\n'
+        '#padel #padeltok #padelespaña #palasdepadel #ofertaspadel #tupala')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
