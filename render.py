@@ -9,7 +9,7 @@ DIAS=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
 MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 HOOK=1.7; BEAT=2.8; CLOSE=2.8; FPS=30   # ~15 s: la franja de 7–15 s es la que más se termina de ver
 UTM='?utm_source=instagram&utm_medium=historia&utm_campaign=ofertas-dia'
-L=96; W=800                                   # columna x 96–896; vertical: arriba >270 (barra y avatar de la historia), 1490–1720 libre para el sticker
+L=110; W=760                                  # columna x 110–870: deja libre la columna de botones de TikTok en iPhone (recorta ~50 px por lado)
 e=lambda s: H_.escape(str(s or ''))
 nb=lambda s: e(s).replace(' ','&nbsp;')
 def num(s): return float(re.sub(r'[^\d,]','',s or '0').replace(',','.') or 0)
@@ -226,7 +226,7 @@ window.render(0);
 </script>'''
     for k,v in {'__TL__':json.dumps(tl,ensure_ascii=False),'__HOOK__':str(HOOK),'__BEAT__':str(BEAT),'__END__':str(END),'__TOP__':str(top),'__CLOSE__':str(CLOSE)}.items(): js=js.replace(k,v)
     fonts='<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap">'
-    return f'<!doctype html><html><head><meta charset="utf-8">{fonts}{css}</head><body>{body}{js}</body></html>',END
+    return f'<!doctype html><html><head><meta charset="utf-8">{fonts}{css}</head><body>{body}{js}<script>{{const r0=window.render;window.render=t=>{{r0(t);document.querySelectorAll(".g-name").forEach(n=>{{if(n.dataset.ok||!n.clientWidth)return;let s=44;while(n.scrollWidth>n.clientWidth&&s>32){{s--;n.style.fontSize=s+"px"}}n.dataset.ok=1}})}}}}</script></body></html>',END
 def textos(data,fecha):
     """Lo que necesita quien publica: el enlace de cada historia, la encuesta y el texto del vídeo completo para TikTok."""
     of=data['ofertas'][:4]; n=len(of); bf=campana(fecha)
