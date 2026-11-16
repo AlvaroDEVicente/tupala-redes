@@ -203,17 +203,22 @@ def textos(data,fecha):
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     enl=[{'historia':i+2,'nombre':o['nombre'],'url':(o.get('url') or 'https://tupala.es/precios/ofertas/')+UTM,'texto_sticker':'Ver oferta'} for i,o in enumerate(of)]
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
-    tt=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto y comparadas con lo que cuestan normalmente. '
-        '¿Cuál te llevas? Comenta su número. Todas en tupala.es 🎾\n\n#padel #padeltok #padelespaña #palasdepadel #ofertaspadel')
     lis='\n'.join(f'{i+1}. {o["rango"]} · {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     total=data.get('total')
     mas='Descubre más ofertas en tupala.es'
-    # Un solo texto para Instagram y TikTok: sin «link en la bio» porque la bio de TikTok aún no admite enlace.
+    # Instagram: sin «link en la bio»; la web se nombra en el texto.
     ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
         'Rebajas comparadas con su precio de siempre, para que sepas si de verdad es buen momento.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
         f'{mas}\n\n'
         '#padel #palasdepadel #ofertaspadel #padelespaña #tupala')   # Instagram admite 5 hashtags como máximo
+    # TikTok: más corto y conversacional, con las palabras que la gente busca dentro de TikTok ("ofertas palas de pádel")
+    nums=['1️⃣','2️⃣','3️⃣','4️⃣']
+    lt='\n'.join(f'{nums[i]} {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
+    tt=(f'Ofertas de palas de pádel de hoy: una por presupuesto, hasta −{top} % 🎾\n\n{lt}\n\n'
+        '¿Con cuál te quedas? Te leo en comentarios 👇\n'
+        'Precios comparados con lo que cada pala cuesta normalmente. Más ofertas en tupala.es\n\n'
+        '#padel #padeltok #palasdepadel #ofertaspadel #padelespaña')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
@@ -262,6 +267,8 @@ if __name__=='__main__':
             print(web,round(os.path.getsize(web)/1e6,2),'MB crf',crf)
             # Imágenes para las historias: el último fotograma de cada pala (hueco libre abajo para el sticker de enlace)
             hd=os.path.join(out,'historias'); os.makedirs(hd,exist_ok=True)
+            subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',f'{HOOK-.05:.2f}','-i',comp,'-frames:v','1','-q:v','3',
+                os.path.join(out,'portada.jpg')],check=True)   # portada del reel para Instagram y TikTok
             for i in range(n):
                 t=HOOK+(i+1)*BEAT-.05
                 subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',f'{t:.2f}','-i',comp,'-frames:v','1','-q:v','3',
