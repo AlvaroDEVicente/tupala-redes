@@ -217,7 +217,7 @@ def textos(data,fecha):
     lt='\n'.join(f'{nums[i]} {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     tt=(f'Ofertas de palas de pádel de hoy: una por presupuesto, hasta −{top} % 🎾\n\n{lt}\n\n'
         '¿Con cuál te quedas? Te leo en comentarios 👇\n'
-        'Precios comparados con lo que cada pala cuesta normalmente.\n\nMás ofertas en tupala.es\n👉 La web la tienes en nuestro perfil.\n\n'
+        'Precios comparados con lo que cada pala cuesta normalmente. Más ofertas en tupala.es\n\n'
         '#padel #padeltok #palasdepadel #ofertaspadel #padelespaña')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
