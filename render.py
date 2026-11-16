@@ -207,17 +207,17 @@ def textos(data,fecha):
     total=data.get('total')
     mas='Descubre más ofertas en tupala.es\n👉 Link en la bio.'   # mismo estilo que las publicaciones fijadas
     # Instagram: sin «link en la bio»; la web se nombra en el texto.
-    ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
-        'Rebajas comparadas con su precio de siempre, para que sepas si de verdad es buen momento.\n\n'
+    ig=(f'Hoy, palas de pádel hasta −{top} %: una para cada presupuesto 🎾\n\n{lis}\n\n'
+        'Comparadas con su precio de siempre, para que sepas si es buen momento de comprar.\n\n'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
         f'{mas}\n\n'
         '#padel #palasdepadel #ofertaspadel #padelespaña #tupala')   # Instagram admite 5 hashtags como máximo
     # TikTok: más corto y conversacional, con las palabras que la gente busca dentro de TikTok ("ofertas palas de pádel")
     nums=['1️⃣','2️⃣','3️⃣','4️⃣']
     lt='\n'.join(f'{nums[i]} {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
-    tt=(f'Ofertas de palas de pádel de hoy: una por presupuesto, hasta −{top} % 🎾\n\n{lt}\n\n'
+    tt=(f'Ofertas de palas de pádel hoy: hasta −{top} %, una para cada presupuesto 🎾\n\n{lt}\n\n'
         '¿Con cuál te quedas? Te leo en comentarios 👇\n'
-        'Precios comparados con lo que cada pala cuesta normalmente. Más ofertas en tupala.es\n\n'
+        'Comparadas con su precio de siempre. Más ofertas en tupala.es\n\n'
         '#padel #padeltok #palasdepadel #ofertaspadel #padelespaña')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
