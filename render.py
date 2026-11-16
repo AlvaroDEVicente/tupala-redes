@@ -45,8 +45,8 @@ def campana(fecha):
     ini=vie-datetime.timedelta(days=10); fin=vie+datetime.timedelta(days=3)
     if not (ini<=fecha<=fin) and forz!='bf': return None
     d=(vie-fecha).days
-    if d>1: cuenta=f'Faltan {d} días'
-    elif d==1: cuenta='Mañana es el día'
+    # Sin cuenta atrás: la campaña ya está en marcha; solo se marcan los días clave
+    if d>=1: cuenta=None
     elif d==0: cuenta='Hoy es el día'
     elif d<0 and fecha.weekday() in (5,6): cuenta='Último fin de semana'
     else: cuenta='Cyber Monday'
@@ -158,7 +158,7 @@ def build(data,fecha,fotos,reel=True):
     body=f'''<div class="art"><div class="bg" id="bg"></div><div class="grid"></div>
 <img class="it" id="lg" data-x="196" data-y="282" src="{A("logo-blanco.svg")}" style="width:200px">{'<div class="it" id="bfc" data-x="'+str(L+W-95)+'" data-y="282"><span class="bfchip">Black Friday</span></div>' if bf else ''}
 <div class="sw" id="w0">
-<div class="it" id="h0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">{(f'<span class="bfchip">Black Friday</span>&nbsp;&nbsp;{e(bf["cuenta"])}') if bf else e(hoy.capitalize())}</div></div>
+<div class="it" id="h0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">{(f'<span class="bfchip">Black Friday</span>&nbsp;&nbsp;{e(bf["cuenta"] or hoy.capitalize())}') if bf else e(hoy.capitalize())}</div></div>
 <div class="it" id="h1" data-x="{L+W/2}" data-y="474"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">{'Black Friday' if bf else 'Ofertas de hoy'}</div></div>
 <div class="it" id="h2" data-x="{L+W/2}" data-y="650"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">{'ofertas<br>comprobadas.' if bf else 'para todos<br>los bolsillos.'}</div></div></div>
 {fan}
@@ -238,7 +238,7 @@ def textos(data,fecha):
     mas='Descubre más ofertas en tupala.es\n👉 Link en la bio.'   # mismo estilo que las publicaciones fijadas
     # Instagram: sin «link en la bio»; la web se nombra en el texto.
     cab=(f'Black Friday de pádel: ofertas comprobadas, hasta −{top} % 🎾' if bf else f'Hoy, palas de pádel hasta −{top} %: una para cada presupuesto 🎾')
-    cuenta=((f"⏳ {bf['cuenta']} para el Black Friday.\n\n" if bf['dias']>1 else f"⏳ {bf['cuenta']}.\n\n") if bf else '')
+    cuenta=(f"⏳ {bf['cuenta']}.\n\n" if bf and bf['cuenta'] else '')
     precio=('Comparadas con su precio de siempre, para que sepas si la rebaja es de verdad.' if bf
             else 'Comparadas con su precio de siempre, para que sepas si es buen momento de comprar.')
     tags_ig='#padel #palasdepadel #ofertaspadel '+('#blackfriday' if bf else '#padelespaña')+' #tupala'   # Instagram: 5 como máximo
@@ -266,6 +266,7 @@ if __name__=='__main__':
     if not keep: sys.exit('Sin ofertas con foto')
     data['ofertas']=keep
     fecha=datetime.datetime.now(__import__("zoneinfo").ZoneInfo("Europe/Madrid")).date()
+    if os.environ.get("TUPALA_FECHA"): fecha=datetime.date.fromisoformat(os.environ["TUPALA_FECHA"])  # solo pruebas
     html,END=build(data,fecha,fotos,reel)
     hp=os.path.join(d,'historias.html'); open(hp,'w').write(html)
     json.dump(textos(data,fecha),open(os.path.join(d,'textos.json'),'w'),ensure_ascii=False,indent=1)
