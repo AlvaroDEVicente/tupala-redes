@@ -36,10 +36,26 @@ def curva(d,tdy):
     unida=trozos[0]+''.join('L'+t[1:] for t in trozos[1:])
     if xl<99.5: unida+=f' C{m:.2f},{yl:.2f} {m:.2f},{tdy:.2f} 100,{tdy:.2f}'
     return linea, unida+' L100,100 L0,100 Z', gaps.strip()
+def campana(fecha):
+    """Black Friday: desde el lunes 10 días antes del viernes (4.º viernes de noviembre) hasta el Cyber Monday.
+    TUPALA_CAMPANA=bf fuerza la campaña (para maquetas) y TUPALA_CAMPANA=no la apaga."""
+    forz=os.environ.get('TUPALA_CAMPANA','')
+    if forz=='no': return None
+    nov1=datetime.date(fecha.year,11,1); vie=nov1+datetime.timedelta(days=(4-nov1.weekday())%7+21)
+    ini=vie-datetime.timedelta(days=10); fin=vie+datetime.timedelta(days=3)
+    if not (ini<=fecha<=fin) and forz!='bf': return None
+    d=(vie-fecha).days
+    if d>1: cuenta=f'Faltan {d} días'
+    elif d==1: cuenta='Mañana es el día'
+    elif d==0: cuenta='Hoy es el día'
+    elif d<0 and fecha.weekday() in (5,6): cuenta='Último fin de semana'
+    else: cuenta='Cyber Monday'
+    return {'cuenta':cuenta,'dias':d,'viernes':vie}
 def build(data,fecha,fotos,reel=True):
     of=data['ofertas'][:4]; n=len(of); total=data.get('total')
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     hoy=f'{DIAS[fecha.weekday()]} {fecha.day} de {MESES[fecha.month-1]}'
+    bf=campana(fecha)
     pills=''.join(f'<span class="pill" id="pl{i}">{nb(o["rango"])}</span>' for i,o in enumerate(of))
     fan=''.join(f'<img class="it fan" id="fn{i}" data-x="{250+i*150}" data-y="1150" src="file://{fotos[i]}">' for i in range(n))
     offers=''
@@ -125,13 +141,26 @@ def build(data,fecha,fotos,reel=True):
 .t-p{{font:900 64px/1 Inter;color:#8FE3C4;letter-spacing:-.04em}}.t-g{{font:700 21px Inter;color:#fff}}.t-e{{font:600 21px Inter;color:#DCEAF8}}
 .cta{{display:inline-flex;align-items:center;gap:16px;background:#fff;color:#10243B;border-radius:99px;padding:22px 40px 22px 30px;font:800 40px Inter;box-shadow:0 18px 40px -16px rgba(0,0,0,.6)}}.cta i{{font-style:normal;color:#5f6674;font-weight:600}}
 .sw{{position:absolute;inset:0;display:none}}
+.bfchip{{display:inline-block;background:#E4FB6A;color:#0B0B0B;font:800 24px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;padding:9px 14px;border-radius:6px}}
+</style>'''
+    if bf:   # estética Black Friday: negro y lima, como la portada de la web en campaña
+        css+='''<style>
+.art{background:#0B0B0B}
+.bg{background:radial-gradient(700px 700px at 78% 36%,rgba(228,251,106,.16),transparent 62%),radial-gradient(650px 650px at 12% 88%,rgba(228,251,106,.08),transparent 60%),linear-gradient(170deg,#050505 0%,#111 55%,#1a1a1a 100%)}
+.grid{background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px)}
+.glow{background:radial-gradient(closest-side,rgba(228,251,106,.22),rgba(228,251,106,.06) 55%,transparent 72%)}
+.glass{background:linear-gradient(160deg,rgba(40,40,40,.92),rgba(20,20,20,.9));border-color:rgba(228,251,106,.28)}
+.row{background:linear-gradient(160deg,rgba(40,40,40,.9),rgba(22,22,22,.88));border-color:rgba(255,255,255,.14)}
+.h-n{background:linear-gradient(180deg,#E4FB6A 0%,#E4FB6A 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 20px 50px rgba(228,251,106,.25))}
+.pill{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+.chip.seal{background:#0B0B0B}
 </style>'''
     body=f'''<div class="art"><div class="bg" id="bg"></div><div class="grid"></div>
-<img class="it" id="lg" data-x="196" data-y="282" src="{A("logo-blanco.svg")}" style="width:200px">
+<img class="it" id="lg" data-x="196" data-y="282" src="{A("logo-blanco.svg")}" style="width:200px">{'<div class="it" id="bfc" data-x="'+str(L+W-95)+'" data-y="282"><span class="bfchip">Black Friday</span></div>' if bf else ''}
 <div class="sw" id="w0">
-<div class="it" id="h0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">{e(hoy.capitalize())}</div></div>
-<div class="it" id="h1" data-x="{L+W/2}" data-y="474"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">Ofertas de hoy</div></div>
-<div class="it" id="h2" data-x="{L+W/2}" data-y="650"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">para todos<br>los bolsillos.</div></div></div>
+<div class="it" id="h0" data-x="{L+W/2}" data-y="372"><div class="mono h-k" style="width:{W}px">{(f'<span class="bfchip">Black Friday</span>&nbsp;&nbsp;{e(bf["cuenta"])}') if bf else e(hoy.capitalize())}</div></div>
+<div class="it" id="h1" data-x="{L+W/2}" data-y="474"><div class="h-t" style="width:{W}px;font-size:110px;white-space:nowrap">{'Black Friday' if bf else 'Ofertas de hoy'}</div></div>
+<div class="it" id="h2" data-x="{L+W/2}" data-y="650"><div style="width:{W}px"><div class="h-n" style="font-size:112px;line-height:.95">{'ofertas<br>comprobadas.' if bf else 'para todos<br>los bolsillos.'}</div></div></div>
 {fan}
 <div class="it" id="h3" data-x="{L+W/2}" data-y="830"><div class="pills" style="width:{W}px">{pills}</div></div>
 </div>
@@ -162,6 +191,7 @@ window.render=function(t){
  for(let k=0;k<=N+1;k++) document.getElementById('w'+k).style.display=k===seg?'block':'none';
  document.getElementById('bg').style.transform=`translate(${Math.sin(t*.35)*40}px,${Math.cos(t*.28)*50}px) scale(${1.05+.03*Math.sin(t*.5)})`;
  K('lg',t,[[0,{o:0,y:-20}],[.4,{o:1,y:0}]]);
+ K('bfc',t,[[0,{o:0}],[HOOK-.05,{o:0}],[HOOK+.25,{o:1}]]);
  // PORTADA (sin salida: la historia corta sola)
  K('h0',t,[[.0,{o:0,y:30}],[.3,{o:1,y:0}]]);
  K('h1',t,[[.05,{o:0,y:90,b:12}],[.4,{o:1,y:0,b:0}]]);
@@ -199,7 +229,7 @@ window.render(0);
     return f'<!doctype html><html><head><meta charset="utf-8">{fonts}{css}</head><body>{body}{js}</body></html>',END
 def textos(data,fecha):
     """Lo que necesita quien publica: el enlace de cada historia, la encuesta y el texto del vídeo completo para TikTok."""
-    of=data['ofertas'][:4]; n=len(of)
+    of=data['ofertas'][:4]; n=len(of); bf=campana(fecha)
     pcts=[int(re.sub(r'\D','',o['pct']) or 0) for o in of]; top=max(pcts) if pcts else 0
     enl=[{'historia':i+2,'nombre':o['nombre'],'url':(o.get('url') or 'https://tupala.es/precios/ofertas/')+UTM,'texto_sticker':'Ver oferta'} for i,o in enumerate(of)]
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
@@ -207,18 +237,23 @@ def textos(data,fecha):
     total=data.get('total')
     mas='Descubre más ofertas en tupala.es\n👉 Link en la bio.'   # mismo estilo que las publicaciones fijadas
     # Instagram: sin «link en la bio»; la web se nombra en el texto.
-    ig=(f'Hoy, palas de pádel hasta −{top} %: una para cada presupuesto 🎾\n\n{lis}\n\n'
-        'Comparadas con su precio de siempre, para que sepas si es buen momento de comprar.\n\n'
+    cab=(f'Black Friday de pádel: ofertas comprobadas, hasta −{top} % 🎾' if bf else f'Hoy, palas de pádel hasta −{top} %: una para cada presupuesto 🎾')
+    cuenta=((f"⏳ {bf['cuenta']} para el Black Friday.\n\n" if bf['dias']>1 else f"⏳ {bf['cuenta']}.\n\n") if bf else '')
+    precio=('Comparadas con su precio de siempre, para que sepas si la rebaja es de verdad.' if bf
+            else 'Comparadas con su precio de siempre, para que sepas si es buen momento de comprar.')
+    tags_ig='#padel #palasdepadel #ofertaspadel '+('#blackfriday' if bf else '#padelespaña')+' #tupala'   # Instagram: 5 como máximo
+    ig=(f'{cab}\n\n{lis}\n\n{precio}\n\n{cuenta}'
         '¿Cuál te llevas? Comenta su número 👇\n\n'
-        f'{mas}\n\n'
-        '#padel #palasdepadel #ofertaspadel #padelespaña #tupala')   # Instagram admite 5 hashtags como máximo
+        f'{mas}\n\n{tags_ig}')
     # TikTok: más corto y conversacional, con las palabras que la gente busca dentro de TikTok ("ofertas palas de pádel")
     nums=['1️⃣','2️⃣','3️⃣','4️⃣']
     lt='\n'.join(f'{nums[i]} {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
-    tt=(f'Ofertas de palas de pádel hoy: hasta −{top} %, una para cada presupuesto 🎾\n\n{lt}\n\n'
+    cab_tt=(f'Black Friday de pádel: ofertas comprobadas hasta −{top} %, una para cada presupuesto 🎾' if bf
+            else f'Ofertas de palas de pádel hoy: hasta −{top} %, una para cada presupuesto 🎾')
+    tags_tt='#padel #padeltok #palasdepadel #ofertaspadel '+('#blackfriday' if bf else '#padelespaña')
+    tt=(f'{cab_tt}\n\n{lt}\n\n'
         '¿Con cuál te quedas? Te leemos en comentarios 👇\n\n'
-        'Comparadas con su precio de siempre. Más ofertas en tupala.es\n\n'
-        '#padel #padeltok #palasdepadel #ofertaspadel #padelespaña')
+        f'Comparadas con su precio de siempre. Más ofertas en tupala.es\n\n{cuenta}{tags_tt}')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
     d=sys.argv[1]; out=sys.argv[2]; mode=sys.argv[3] if len(sys.argv)>3 else 'video'; reel=(sys.argv[4] if len(sys.argv)>4 else 'reel')=='reel'
