@@ -31,6 +31,8 @@ def leer():
                 r=rango_de(o)
                 if r and r not in tengo: o['dia']=False; d.append(o); tengo.add(r)
         for o in d: o['rango']=rango_de(o) or o.get('rango')
+        # Algunas fichas de la web arrastran el código de la tienda al final del nombre («… 2026 16cursof26»): fuera del vídeo
+        for o in d: o['nombre']=re.sub(r'(\s+(?=[a-z0-9]*[a-z])(?=[a-z0-9]*\d)[a-z0-9]{5,})+$','',o['nombre']).strip()
         d.sort(key=lambda o:precio(o))
         b.close()
         m=re.search(r'(\d+)',tot or '')

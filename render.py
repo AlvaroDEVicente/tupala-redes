@@ -94,7 +94,7 @@ def build(data,fecha,fotos,reel=True):
 .stk{{width:285px;height:285px;border-radius:50%;background:#E4FB6A;color:#10243B;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px -18px rgba(228,251,106,.55),inset 0 -10px 0 rgba(0,0,0,.08)}}
 .stk-in{{text-align:center;line-height:1}}.stk small{{display:block;font:800 22px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}}
 .stk span{{font:900 90px/1 Inter;letter-spacing:-.05em;white-space:nowrap}}.stk em{{font-style:normal}}.stk .pc{{font-style:normal;font-size:.62em;margin-left:.12em;letter-spacing:0}}
-.glass{{width:{W}px;height:430px;border-radius:36px;padding:34px 38px 30px;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05));border:1.5px solid rgba(255,255,255,.22);backdrop-filter:blur(26px) saturate(140%);-webkit-backdrop-filter:blur(26px) saturate(140%);box-shadow:0 40px 80px -30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.25);display:flex;flex-direction:column}}
+.glass{{width:{W}px;height:430px;border-radius:36px;padding:34px 38px 30px;background:linear-gradient(160deg,rgba(38,72,116,.86),rgba(14,40,74,.82));border:1.5px solid rgba(255,255,255,.22);backdrop-filter:blur(26px) saturate(140%);-webkit-backdrop-filter:blur(26px) saturate(140%);box-shadow:0 40px 80px -30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.25);display:flex;flex-direction:column}}
 .g-name{{font:800 44px/1.05 Inter;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .g-attr{{margin-top:8px;font:500 25px Inter;color:#DCEAF8}}.g-attr b{{color:#fff}}
 .g-price{{margin-top:14px;display:flex;align-items:baseline;gap:18px}}
