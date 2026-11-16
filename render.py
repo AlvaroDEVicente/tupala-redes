@@ -205,7 +205,7 @@ def textos(data,fecha):
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
     lis='\n'.join(f'{i+1}. {o["rango"]} · {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     total=data.get('total')
-    mas='Descubre más ofertas en tupala.es (link en la bio)'   # en Instagram el texto no es clicable; el enlace de la bio sí
+    mas='Descubre más ofertas en tupala.es\n👉 Link en la bio.'   # mismo estilo que las publicaciones fijadas
     # Instagram: sin «link en la bio»; la web se nombra en el texto.
     ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
         'Rebajas comparadas con su precio de siempre, para que sepas si de verdad es buen momento.\n\n'
@@ -217,7 +217,7 @@ def textos(data,fecha):
     lt='\n'.join(f'{nums[i]} {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     tt=(f'Ofertas de palas de pádel de hoy: una por presupuesto, hasta −{top} % 🎾\n\n{lt}\n\n'
         '¿Con cuál te quedas? Te leo en comentarios 👇\n'
-        'Precios comparados con lo que cada pala cuesta normalmente. Más ofertas en tupala.es\n\n'
+        'Precios comparados con lo que cada pala cuesta normalmente.\n\nMás ofertas en tupala.es\n👉 La web la tienes en nuestro perfil.\n\n'
         '#padel #padeltok #palasdepadel #ofertaspadel #padelespaña')
     return {'reel_instagram':ig,'tiktok':tt,'enlaces':enl,'encuesta':enc}
 if __name__=='__main__':
