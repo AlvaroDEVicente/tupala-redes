@@ -205,7 +205,7 @@ def textos(data,fecha):
     enc={'historia':n+2,'pregunta':'¿Cuál te llevas?','opciones':[str(i+1) for i in range(n)]}
     lis='\n'.join(f'{i+1}. {o["rango"]} · {o["nombre"]} · {o["precio"]} ({o["pct"]})' for i,o in enumerate(of))
     total=data.get('total')
-    mas='Descubre más ofertas en tupala.es'
+    mas='Descubre más ofertas en tupala.es (link en la bio)'   # en Instagram el texto no es clicable; el enlace de la bio sí
     # Instagram: sin «link en la bio»; la web se nombra en el texto.
     ig=(f'Palas de pádel hasta −{top} % hoy, una por presupuesto 🎾\n\n{lis}\n\n'
         'Rebajas comparadas con su precio de siempre, para que sepas si de verdad es buen momento.\n\n'
