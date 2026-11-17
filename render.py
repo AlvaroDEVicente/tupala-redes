@@ -8,7 +8,7 @@ A=lambda p: 'file://'+os.path.join(HERE,'assets',p)
 DIAS=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
 MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 HOOK=1.7; BEAT=2.8; CLOSE=2.8; FPS=30   # ~15 s: la franja de 7–15 s es la que más se termina de ver
-UTM='?utm_source=instagram&utm_medium=historia&utm_campaign=ofertas-dia'
+UTM=''  # sin UTM (17/11/2026)
 L=110; W=760                                  # columna x 110–870: deja libre la columna de botones de TikTok en iPhone (recorta ~50 px por lado)
 e=lambda s: H_.escape(str(s or ''))
 nb=lambda s: e(s).replace(' ','&nbsp;')
